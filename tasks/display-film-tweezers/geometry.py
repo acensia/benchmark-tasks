@@ -2,20 +2,13 @@
 import itertools
 import numpy as np
 
-TABLE_Z = 0.7475
-PLATE_SIZE = np.array([0.10, 0.35, 0.001])
-PLATE_POS = np.array([0.28, -0.01, TABLE_Z + PLATE_SIZE[2]/2])
-STRIP_SIZE = np.array([0.08, 0.01, 0.001])
-TAB_SIZE = np.array([0.08, 0.02, 0.001])
+from fixture_geometry import (TABLE_Z, CARRIER_SIZE, CARRIER_CENTER as CARRIER_POS,
+                              FILM_SIZE as STRIP_SIZE, TAB_BOUNDS as TAB_SIZE,
+                              TAB_ROOT as TAB_POS, FILM_Z, CREASE_Y, TAB_SEAM)
 N = 13
-FILM_Z = TABLE_Z + PLATE_SIZE[2] + STRIP_SIZE[2]/2
-CREASE_Y = -0.055
-TAB_ANGLE = np.deg2rad(110)  # +y edge leans toward -y, 70 degrees above the plate
-TAB_QUAT = np.array([np.sin(TAB_ANGLE / 2), 0., 0., np.cos(TAB_ANGLE / 2)])
-TAB_POS = np.array([0.28, CREASE_Y + 0.01 * np.cos(TAB_ANGLE),
-                    FILM_Z + 0.01 * np.sin(TAB_ANGLE)])
+TAB_QUAT = np.array([0.,0.,0.,1.])
 FILM_NAMES = ('pull_tab',) + tuple(f'film_{i:02d}' for i in range(N))
-SIZES = dict(steel_plate=PLATE_SIZE, pull_tab=TAB_SIZE,
+SIZES = dict(carrier=CARRIER_SIZE, pull_tab=TAB_SIZE,
              **{name: STRIP_SIZE for name in FILM_NAMES[1:]})
 
 

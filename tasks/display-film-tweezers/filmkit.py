@@ -10,7 +10,7 @@ import importlib.machinery
 import sys
 from functools import wraps
 import numpy as np
-from geometry import (FILM_NAMES, N, PLATE_POS, SIZES, STRIP_SIZE, TAB_ANGLE,
+from geometry import (FILM_NAMES, N, CARRIER_POS, SIZES, STRIP_SIZE, TAB_SEAM,
                       TAB_QUAT, TAB_SIZE, rotation, strip_pos)
 from scoring import Trial
 
@@ -76,36 +76,41 @@ def _patch_scene(module):
 
         obj = original(spec)
         cfg = obj.spawner_cfg
-        cfg.rigid_props.solver_position_iteration_count = 32
-        cfg.rigid_props.solver_velocity_iteration_count = 8
-        cfg.collision_props.contact_offset = .001
+        cfg.rigid_props.solver_position_iteration_count = 128
+        cfg.rigid_props.solver_velocity_iteration_count = 16
+        cfg.collision_props.contact_offset = .0002
         cfg.collision_props.rest_offset = 0.
-        if spec.name == 'steel_plate':
+        if spec.name == 'carrier':
             cfg.physics_material.static_friction = .4
             cfg.physics_material.dynamic_friction = .4
             cfg.physics_material.friction_combine_mode = 'min'
         pose = obj.initial_pose
         if spec.name == 'pull_tab':
             pose = Pose(position_xyz=tuple(spec.pos), rotation_xyzw=tuple(map(float, TAB_QUAT)))
+            cfg.activate_contact_sensors = True
 
         @clone
         def spawn(path, config, *args, **kwargs):
             prim = spawn_cuboid.__wrapped__(path, config, *args, **kwargs)
             stage = prim.GetStage()
             _paths[spec.name] = str(path)
+            if spec.name in ('carrier','pull_tab'):
+                from fixture_geometry import carrier_parts,tab_parts
+                from fixturekit import replace_mesh
+                replace_mesh(prim,config,carrier_parts() if spec.name=='carrier' else tab_parts())
             if spec.name.startswith('film_'):
                 i = int(spec.name.split('_')[1])
                 prev = 'pull_tab' if i == 0 else f'film_{i-1:02d}'
-                prev_half = TAB_SIZE[1]/2 if i == 0 else STRIP_SIZE[1]/2
+                prev_anchor = TAB_SEAM if i == 0 else (0.,-STRIP_SIZE[1]/2,0.)
                 _joint(stage, 'hinge', _paths[prev], str(path),
-                       (0., -prev_half, 0.), (0., .005, 0.),
+                       prev_anchor, (0., STRIP_SIZE[1]/2, 0.),
                        stiffness=.01 if i == 0 else 0.,
-                       target=-float(np.rad2deg(TAB_ANGLE)) if i == 0 else 0.,
+                       target=0.,
                        damping=.0001 if i == 0 else .00002,
                        max_torque=.0002 if i == 0 else None)
-                anchor = strip_pos(i) - PLATE_POS + np.array([0., -.005, 0.])
-                bond = _joint(stage, 'adhesion', _paths['steel_plate'], str(path),
-                              anchor, (0., -.005, 0.), stiffness=STIFFNESS)
+                anchor = strip_pos(i) - CARRIER_POS + np.array([0., -STRIP_SIZE[1]/2, 0.])
+                bond = _joint(stage, 'adhesion', _paths['carrier'], str(path),
+                              anchor, (0., -STRIP_SIZE[1]/2, 0.), stiffness=STIFFNESS)
                 _bonds.append(bond)
             return prim
 
@@ -116,6 +121,8 @@ def _patch_scene(module):
                              spawner_cfg=cfg, initial_pose=pose)
 
     module.task_object = task_object
+    from toolkit import patch
+    patch(module)
 
 
 class _SceneFinder(importlib.abc.MetaPathFinder):
@@ -147,7 +154,7 @@ def advance(objects, hands_clear):
     # A scoring failure must not change subsequent material mechanics. Continue
     # physical peeling after plate excursions; only malformed state prevents an update.
     try:
-        plate = objects['steel_plate']
+        plate = objects['carrier']
         s = objects[FILM_NAMES[trial.peeled + 1]]
         r = rotation(plate.quat_xyzw).T @ rotation(s.quat_xyzw)
     except (KeyError, ValueError):
@@ -166,9 +173,9 @@ def validate_integrity(objects):
     """
     for i in range(N):
         prev, cur = objects[FILM_NAMES[i]], objects[FILM_NAMES[i+1]]
-        half = .010 if i == 0 else .005
-        a = prev.pos + rotation(prev.quat_xyzw) @ np.array([0., -half, 0.])
-        b = cur.pos + rotation(cur.quat_xyzw) @ np.array([0., .005, 0.])
+        anchor = TAB_SEAM if i == 0 else np.array([0.,-STRIP_SIZE[1]/2,0.])
+        a = prev.pos + rotation(prev.quat_xyzw) @ anchor
+        b = cur.pos + rotation(cur.quat_xyzw) @ np.array([0., STRIP_SIZE[1]/2, 0.])
         if np.linalg.norm(a-b) > .003:
             trial.invalid = True
 
@@ -187,7 +194,7 @@ def _hands_clear(emb, objects):
         if not np.all(np.isfinite(q)):
             return False
         tcp, _ = tcp_pose(q, np.asarray(base))
-        for piece in SIZES:
+        for piece in objects:
             low, high = objects[piece].low, objects[piece].high
             if np.linalg.norm(tcp - np.clip(tcp, low, high)) < .08:
                 return False

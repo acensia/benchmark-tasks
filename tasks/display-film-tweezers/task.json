@@ -1,0 +1,19 @@
+{
+  "title": "Remove display protective film with passive tweezers",
+  "category": "Impact on jobs",
+  "keywords": [
+    "bimanual",
+    "tool use",
+    "tweezers",
+    "protective film",
+    "display assembly"
+  ],
+  "instruction": "Remove the blue protective film from the display module in its loose carrier. Lay the intact detached film on the table entirely outside the carrier, return the tweezers upright to their stand, and withdraw both hands. Keep the carrier within 30 mm horizontally, 5 mm vertically and 10 degrees of its starting pose throughout.",
+  "context": "Protective films are removed before display assembly. This task combines acquiring and controlling a passive tool, reaching a recessed starter tab, stabilizing a loose workpiece during peeling, and clearing the film and tool.",
+  "setup": "Dual-YAM station on a 1.10 x 1.30 x 0.06 m oak table, centre (0.36,0,0.7175) m, top z=0.7475 m. Arm bases (0,+/-0.305,0.75) m, left at +y, facing +x. A loose ABS carrier with glass display insert, total 250 g, occupies x=0.225..0.335, y=-0.21..0.14, z=0.7475..0.7645 m. Its base is 3 mm thick; display is 72 x 135 mm, x=0.244..0.316, y=-0.190..-0.055, glass top z=0.7625. Side rails are 21 mm wide; front support flange starts y=-0.049. A 12 x 6 mm slot at x=0.274..0.286, y=-0.055..-0.049 has a 14 mm depth above the base. Blue PE protective film is 66 x 130 mm at x=0.247..0.313, y=-0.185..-0.055; collision thickness is 1 mm. The custom folded starter tab has an 8 x 10 x 1 mm hanging face centred at (0.28,-0.052,0.7580) m. Two 1.2 x 3 x 1 mm side connections leave a 5.6 mm central entry notch and 2.5 mm rear clearance. A 15 g stainless-steel tweezer tool, 120 mm long, has 4 x 0.8 mm tips and rests open 8 mm, pointing down in an ABS stand centred (0.36,-0.24). Stand floor is 30 x 34 x 3 mm; four 3 mm thick walls rise 20 mm above z=0.7505. The stand is fixed. No calibration coupon is present. Exact component bounds and the fixed starting layout are in fixture_geometry.py and tool_geometry.py.",
+  "scoring": "Any carrier excursion beyond 30 mm horizontally, 5 mm vertically or 10 degrees yaw/tilt, or film seam separation beyond 3 mm, makes the trial score 0. Consecutive peeled length <30 mm: 0; >=30 mm: 0.25; >=70 mm: 0.5; >=110 mm: 0.75. Full credit requires all 130 mm detached; every film piece at least 2 mm outside the carrier, within 30 mm above the tabletop, with table support; tool tip centre within 3 mm horizontally and 5 mm vertically of the stand target, tool tilt <=5 degrees and tip opening 6-10 mm. Film and tool must move below 10 mm/s and 0.5 rad/s, and both TCPs must be at least 80 mm from every task object, for 1 second.",
+  "run_limit": "2,400 steps (2 minutes at 20 Hz)",
+  "reset_notes": "Use fresh protective film and the specified folded/notched starter tab for each physical trial. Place the carrier flat and the open tool upright in the stand. Simulator reset restores all poses and adhesive joints; use object_jitter=0 and seed 0.",
+  "fidelity": "PhysX at 240 Hz. Film uses 13 rigid 10 mm strips and a rigid folded tab, with 1 mm collision thickness. Peel-front springs (0.03 N m/rad) release above 60 degrees at 20 Hz; they are not fitted to measured adhesion. Tweezer halves slide on a 150 N/m spring, approximating flexure; contact alone grasps the tool. The carrier has friction 0.4. No stretching, wrinkles, tearing, scratches or ESD. The notched tab and carrier are benchmark-designed fixtures.",
+  "scores": "V2 Dream-1 not yet run; full-score demo not yet validated."
+}

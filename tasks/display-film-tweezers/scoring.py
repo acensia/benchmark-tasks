@@ -1,6 +1,7 @@
 """Outcome scoring, independent of Isaac. History is updated once per control step."""
 import numpy as np
-from geometry import FILM_NAMES, N, PLATE_POS, PLATE_SIZE, SIZES, TABLE_Z, corners, rotation
+from geometry import FILM_NAMES, N, CARRIER_POS, CARRIER_SIZE, SIZES, TABLE_Z, corners, rotation
+from tool_geometry import TOOL_NAMES,returned
 
 
 class Trial:
@@ -16,26 +17,26 @@ class Trial:
     def observe(self, objects, *, hands_clear):
         self.hands_clear = bool(hands_clear)
         try:
-            for name in SIZES:
+            for name in (*SIZES,*TOOL_NAMES,'stand_floor'):
                 s = objects[name]
                 if not all(np.all(np.isfinite(v)) for v in
                            (s.pos, s.quat_xyzw, s.lin_vel, s.ang_vel)):
                     self.invalid = True
                 rotation(s.quat_xyzw)
-            p = objects['steel_plate']
+            p = objects['carrier']
             r = rotation(p.quat_xyzw)
             # Throughout the trial: no lifting, dragging and replacing, or rotating the plate.
-            self.invalid |= bool(np.linalg.norm(np.asarray(p.pos)[:2] - PLATE_POS[:2]) > .030 + 1e-9)
-            self.invalid |= bool(abs(p.pos[2] - PLATE_POS[2]) > .005 + 1e-9)
+            self.invalid |= bool(np.linalg.norm(np.asarray(p.pos)[:2] - CARRIER_POS[:2]) > .030 + 1e-9)
+            self.invalid |= bool(abs(p.pos[2] - CARRIER_POS[2]) > .005 + 1e-9)
             self.invalid |= bool(r[2, 2] < np.cos(np.deg2rad(10)) - 1e-9)
             self.invalid |= bool(abs(np.arctan2(r[1, 0], r[0, 0])) > np.deg2rad(10) + 1e-9)
         except (KeyError, ValueError, IndexError):
             self.invalid = True
 
     def disposed(self, objects):
-        if not self.hands_clear:
+        if not self.hands_clear or not returned(objects):
             return False
-        plate = objects['steel_plate']
+        plate = objects['carrier']
         r = rotation(plate.quat_xyzw)
         table_contact = False
         for name in FILM_NAMES:
@@ -43,8 +44,8 @@ class Trial:
             world = corners(s, SIZES[name])
             local = (world - plate.pos) @ r
             # Conservative whole-piece separation, including a 2 mm margin.
-            outside = any(local[:, axis].min() >= PLATE_SIZE[axis]/2 + .002 or
-                          local[:, axis].max() <= -PLATE_SIZE[axis]/2 - .002
+            outside = any(local[:, axis].min() >= CARRIER_SIZE[axis]/2 + .002 or
+                          local[:, axis].max() <= -CARRIER_SIZE[axis]/2 - .002
                           for axis in (0, 1))
             # Permit the precreased tab to remain raised after disposal. The sheet
             # must have table support, remain entirely within 30 mm of the surface,

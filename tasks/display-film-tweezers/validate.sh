@@ -9,16 +9,28 @@ mkdir -p "$film_out"
 film_out=$(mktemp -d "$film_out/run-XXXXXXXX")
 printf 'Validation artifacts: %s\n' "$film_out"
 "$film_python" -m pytest "$film_task_dir/tests" -q > "$film_out/tests.log" 2>&1
-for film_mode in hold press shear single demo; do
-  film_steps=740
+for film_mode in hold direct press shear single demo; do
+  film_steps=1400
   film_epochs=1
+  film_extra=()
   case "$film_mode" in
     hold) film_steps=200 ;;
+    direct) film_steps=380 ;;
     press|shear) film_steps=400 ;;
-    demo) film_epochs=3 ;;
+    demo) film_epochs=3; film_extra=(--measure-load) ;;
   esac
   "$film_python" "$film_task_dir/probe.py" --mode "$film_mode" --steps "$film_steps" \
-    --epochs "$film_epochs" --out "$film_out/$film_mode" > "$film_out/$film_mode.log" 2>&1
+    --epochs "$film_epochs" "${film_extra[@]}" --out "$film_out/$film_mode" > "$film_out/$film_mode.log" 2>&1
+  if [[ "$film_mode" == direct ]]; then
+    for film_case in "$film_out/$film_mode"/*/; do
+      "$film_python" "$film_case/source/audit_scene.py" "$film_case" > "$film_case/audit.log"
+    done
+    continue
+  fi
+  for ((film_epoch=0; film_epoch<film_epochs; film_epoch++)); do
+    "$film_python" "$film_out/$film_mode/source/audit_scene.py" "$film_out/$film_mode" \
+      --epoch "$film_epoch" > "$film_out/$film_mode/$film_epoch-audit.log"
+  done
   "$film_python" - "$film_out/$film_mode" "$film_mode" "$film_epochs" <<'PY'
 import json, sys
 from pathlib import Path
