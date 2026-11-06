@@ -74,3 +74,12 @@ def make_plan(name,base):
                       W(4,tuple(tcp+[0,-.050,.030]),0.,'pull',yaw)])
     moves.append(W(2,tuple(tcp+[0,-.05,.070]),-.020,'withdraw',yaw))
     return TiltPlan(moves,base,tilt)
+
+
+def decoy_waypoints():
+    """The scripted demo's right-arm path, but taking and returning the paddle-tip tweezers."""
+    from dataclasses import replace
+    from motion import demo
+    from tool_geometry import TOOLS
+    fine,paddle=TOOLS['fine']['stand'],TOOLS['paddle']['stand']
+    return [replace(w,pos=(*paddle,w.pos[2])) if np.allclose(w.pos[:2],fine) else w for w in demo()['right']]

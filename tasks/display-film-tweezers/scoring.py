@@ -1,7 +1,7 @@
 """Outcome scoring, independent of Isaac. History is updated once per control step."""
 import numpy as np
 from geometry import FILM_NAMES, N_BONDED, CARRIER_POS, CARRIER_SIZE, SIZES, TABLE_Z, corners, rotation
-from tool_geometry import TOOL_NAMES,returned
+from tool_geometry import ALL_TOOL_NAMES,STAND_FLOORS,returned
 
 
 class Trial:
@@ -17,7 +17,7 @@ class Trial:
     def observe(self, objects, *, hands_clear):
         self.hands_clear = bool(hands_clear)
         try:
-            for name in (*SIZES,*TOOL_NAMES,'stand_floor'):
+            for name in (*SIZES,*ALL_TOOL_NAMES,*STAND_FLOORS):
                 s = objects[name]
                 if not all(np.all(np.isfinite(v)) for v in
                            (s.pos, s.quat_xyzw, s.lin_vel, s.ang_vel)):

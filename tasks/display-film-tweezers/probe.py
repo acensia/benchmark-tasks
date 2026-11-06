@@ -20,7 +20,7 @@ def source_hash():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', choices=['hold', 'demo', 'single', 'press', 'shear','direct'], default='hold')
+    parser.add_argument('--mode', choices=['hold', 'demo', 'single', 'press', 'shear','direct','decoy'], default='hold')
     parser.add_argument('--scenario',default='all',help='Direct baseline name, or all')
     parser.add_argument('--measure-load',action='store_true',help='Record tab/tool contact load at each physics substep')
     parser.add_argument('--steps', type=int, default=200)
@@ -72,6 +72,9 @@ def main():
         if args.mode=='direct':
             from adversarial import make_plan
             plans[active_arm]=make_plan(scenario,emb.rig.bases[active_arm])
+        if args.mode == 'decoy':
+            from adversarial import decoy_waypoints
+            plans['right'] = ArmPlan(decoy_waypoints(), emb.rig.bases['right'])
         if args.mode in ('press', 'shear'):
             from yam_arena.demo import Waypoint as W
             from geometry import CARRIER_POS, CARRIER_SIZE

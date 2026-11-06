@@ -135,7 +135,8 @@ def tool_parts_from_snapshot():
     tree=ast.parse(Path(__file__).with_name('toolkit.py').read_text())
     node=next(n for n in ast.walk(tree) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='parts' for t in n.targets))
     compiled=compile(ast.Expression(node.value),'<toolkit parts>','eval')
-    return {sign:eval(compiled,{'__builtins__':{}},{'sign':sign}) for sign in (-1,1)}
+    from tool_geometry import TIP_SIZE  # the fine-tip pair is the one inserted
+    return {sign:eval(compiled,{'__builtins__':{}},{'sign':sign,'blade':TIP_SIZE}) for sign in (-1,1)}
 
 
 def static_checks(out):

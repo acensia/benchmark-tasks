@@ -10,14 +10,14 @@ from yam_arena.task_file import ObjectState
 from yam_arena.ik import tcp_pose
 from yam_arena.station import BASES
 from geometry import SIZES,FILM_NAMES,CARRIER_POS,STRIP_SIZE,TAB_SEAM,corners,rotation
-from tool_geometry import TOOL_SIZE,TOOL_NAMES,TIP_SIZE,tool_objects,return_metrics,box_penetration
+from tool_geometry import TOOL_SIZE,TOOL_NAMES,ALL_TOOL_NAMES,TOOLS,TIP_SIZE,tool_objects,return_metrics,box_penetration
 from scoring import Trial
 from fixture_geometry import tab_parts
 
 
 def states(row):
     sizes=dict(SIZES,**{o.name:np.array(o.size) for o in tool_objects()})
-    sizes.update({n:TOOL_SIZE for n in TOOL_NAMES})
+    sizes.update({n:TOOL_SIZE for n in ALL_TOOL_NAMES})
     result={}
     for name,s in row['objects'].items():
         obj=ObjectState(np.array(s['pos']),np.array(s['quat']),np.array(s['vel']),
@@ -64,7 +64,7 @@ def audit(folder,epoch):
             carrier_tilt_deg=float(np.degrees(np.arccos(np.clip(r[2,2],-1,1)))),
             carrier_yaw_deg=float(abs(np.degrees(np.arctan2(r[1,0],r[0,0])))),
             seam_mm=seam*1000,clearance_mm=gap*1000,tip_tab_penetration_mm=penetration,
-            tool_return=return_metrics(o),recomputed_score=score,settled_seconds=trial.settled_seconds))
+            tool_return={k:return_metrics(o,k) for k in TOOLS},recomputed_score=score,settled_seconds=trial.settled_seconds))
     result=dict(source_sha256=summary['source_sha256'],source_unchanged=summary['source_unchanged'],
                 steps=len(rows),continuous_steps=[r['step'] for r in rows]==list(range(len(rows))),
                 score_mismatches=mismatches,final=measurements[-1],
@@ -73,7 +73,7 @@ def audit(folder,epoch):
     result['passed']=bool(result['source_unchanged'] and result['continuous_steps'] and not mismatches)
     if summary['mode']=='demo':result['passed'] &= bool(summary['success'] and measurements[-1]['recomputed_score']==1
                                                        and result['maxima']['tip_tab_penetration_mm']<=.1)
-    elif summary['mode'] in ('hold','press','shear','direct'):
+    elif summary['mode'] in ('hold','press','shear','direct','decoy'):
         result['passed'] &= all(r['info']['score']==0 and r['info']['peeled_strips']==0 for r in rows)
     elif summary['mode']=='single':result['passed'] &= summary['score']==0
     (folder/f'{epoch}-audit.json').write_text(json.dumps(result,indent=2)+'\n')

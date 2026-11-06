@@ -6,21 +6,21 @@ import pytest
 from yam_arena.task_file import ObjectState
 from geometry import FILM_NAMES, N_BONDED, CARRIER_POS, SIZES, TABLE_Z, TAB_POS, TAB_QUAT, corners, strip_pos
 from scoring import Trial
-from tool_geometry import tool_objects,TOOL_NAMES,TOOL_SIZE,returned
+from tool_geometry import tool_objects,TOOL_NAMES,ALL_TOOL_NAMES,TOOL_SIZE,returned
 
 TOOL_SPECS={o.name:o for o in tool_objects()}
 
 
 def state(name, pos, quat=(0., 0., 0., 1.)):
     s = ObjectState(np.array(pos), np.array(quat), np.zeros(3), np.zeros(3), np.zeros(3), np.zeros(3))
-    size=SIZES[name] if name in SIZES else TOOL_SIZE if name in TOOL_NAMES else TOOL_SPECS[name].size
+    size=SIZES[name] if name in SIZES else TOOL_SIZE if name in ALL_TOOL_NAMES else TOOL_SPECS[name].size
     c = corners(s, size)
     return ObjectState(s.pos, s.quat_xyzw, s.lin_vel, s.ang_vel, c.min(0), c.max(0))
 
 
 def initial():
-    tools={n:state(n,np.array(o.pos)+([0,-.0023,0] if n=='tweezer_a' else
-                                    [0,.0023,0] if n=='tweezer_b' else [0,0,0]))
+    tools={n:state(n,np.array(o.pos)+([0,-.0023,0] if n in ALL_TOOL_NAMES and n.endswith('_a') else
+                                    [0,.0023,0] if n in ALL_TOOL_NAMES and n.endswith('_b') else [0,0,0]))
            for n,o in TOOL_SPECS.items()}
     return dict(carrier=state('carrier', CARRIER_POS),**tools,
                 pull_tab=state('pull_tab', TAB_POS, TAB_QUAT),
@@ -184,3 +184,20 @@ def test_invalid_tool_state_fails_closed():
     o['tweezer_a'].pos[0]=np.nan
     t.observe(o,hands_clear=True)
     assert t.score(o)==0
+
+
+def test_decoy_tool_must_also_be_back_in_its_stand():
+    t=Trial();o=completed();t.peeled=N_BONDED
+    assert returned(o)
+    for name in ('paddle_a','paddle_b'):o[name]=state(name,o[name].pos+[-.06,0,0])
+    assert not returned(o)
+    settle(t,o)
+    assert t.score(o)==.75
+
+
+def test_only_fine_tips_pass_the_tab_notch():
+    from fixture_geometry import tab_parts
+    from tool_geometry import TOOLS
+    bridges=[p for p in tab_parts() if p.name.startswith('bridge')]
+    notch=min(abs(p.center[0])-p.size[0]/2 for p in bridges)*2
+    assert TOOLS['fine']['blade'][0] < notch < TOOLS['paddle']['blade'][0]

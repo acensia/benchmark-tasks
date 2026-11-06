@@ -24,12 +24,13 @@ def test_tip_gap_uses_both_half_rotations_not_root_separation():
     assert measured>.99  # root-separation-only code incorrectly returned 0.1 mm
 
 
-def test_toolkit_blade_literal_matches_tip_size():
+def test_toolkit_blades_match_tool_geometry():
     import ast
     from pathlib import Path
-    from tool_geometry import TIP_SIZE
+    from tool_geometry import TOOLS
     tree = ast.parse((Path(__file__).resolve().parents[1] / 'toolkit.py').read_text())
-    parts = next(n for n in ast.walk(tree) if isinstance(n, ast.Assign)
-                 and any(isinstance(t, ast.Name) and t.id == 'parts' for t in n.targets))
-    tip = next(e for e in parts.value.elts if ast.literal_eval(e.elts[0]) == 'tip')
-    assert tuple(ast.literal_eval(tip.elts[1])) == tuple(TIP_SIZE)
+    node = next(n for n in ast.walk(tree) if isinstance(n, ast.Assign)
+                and any(isinstance(t, ast.Name) and t.id == 'BLADES' for t in n.targets))
+    blades = ast.literal_eval(node.value)
+    assert tuple(blades['tweezer']) == tuple(TOOLS['fine']['blade'])
+    assert tuple(blades['paddle']) == tuple(TOOLS['paddle']['blade'])

@@ -4,16 +4,19 @@ import importlib.machinery
 import sys
 
 PATHS = {}
-JOINT = None
+JOINTS = {}
+# Blade boxes (x width, y thickness, z length); must match tool_geometry.TOOLS.
+BLADES = {'tweezer': (.0024, .0008, .024), 'paddle': (.007, .0008, .024)}
+HALVES = {'tweezer_a': ('tweezer', -1), 'tweezer_b': ('tweezer', 1),
+          'paddle_a': ('paddle', -1), 'paddle_b': ('paddle', 1)}
 
 
 def patch(scene):
     original = scene.task_object
 
     def object_spec(spec):
-        global JOINT
         obj = original(spec)
-        if spec.name not in ('tweezer_a', 'tweezer_b'):
+        if spec.name not in HALVES:
             return obj
         from isaaclab.sim.spawners.shapes import spawn_cuboid
         from isaaclab.sim.utils import clone, bind_visual_material, bind_physics_material
@@ -25,15 +28,15 @@ def patch(scene):
         cfg.collision_props.rest_offset = 0.
         cfg.physics_material.static_friction = 1.
         cfg.physics_material.dynamic_friction = .8
-        sign = -1 if spec.name == 'tweezer_a' else 1
+        kind, sign = HALVES[spec.name]
+        blade = BLADES[kind]
 
         @clone
         def spawn(path, config, *args, **kwargs):
-            global JOINT
             prim = spawn_cuboid.__wrapped__(path, config, *args, **kwargs)
             stage = prim.GetStage()
             stage.RemovePrim(str(path)+'/geometry/mesh')
-            parts = [('tip', (.0024,.0008,.024), (0,0,-.048)),
+            parts = [('tip', blade, (0,0,-.048)),
                      ('neck', (.004,.0048,.004), (0,sign*.002,-.038)),
                      ('handle', (.008,.002,.096), (0,sign*.004,.012))]
             for name, size, pos in parts:
@@ -48,9 +51,9 @@ def patch(scene):
                 bind_visual_material(str(cube.GetPath()), str(path)+'/geometry/material')
                 bind_physics_material(str(cube.GetPath()), str(path)+'/geometry/'+config.physics_material_path)
             PATHS[spec.name] = str(path)
-            if spec.name == 'tweezer_b':
+            if sign == 1:
                 joint = UsdPhysics.PrismaticJoint.Define(stage,str(path)+'/spring')
-                joint.CreateBody0Rel().SetTargets([PATHS['tweezer_a']])
+                joint.CreateBody0Rel().SetTargets([PATHS[spec.name[:-1] + 'a']])
                 joint.CreateBody1Rel().SetTargets([str(path)])
                 joint.CreateAxisAttr('Y')
                 joint.CreateLocalPos0Attr(Gf.Vec3f(0,0,0))
@@ -65,7 +68,7 @@ def patch(scene):
                 drive.CreateTargetPositionAttr(.0088)
                 drive.CreateStiffnessAttr(150.)
                 drive.CreateDampingAttr(.5)
-                JOINT = joint
+                JOINTS[kind] = joint
             return prim
         cfg.func = spawn
         return scene.Object(name=spec.name, object_type=obj.object_type,

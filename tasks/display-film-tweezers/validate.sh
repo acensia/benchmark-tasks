@@ -9,13 +9,14 @@ mkdir -p "$film_out"
 film_out=$(mktemp -d "$film_out/run-XXXXXXXX")
 printf 'Validation artifacts: %s\n' "$film_out"
 "$film_python" -m pytest "$film_task_dir/tests" -q > "$film_out/tests.log" 2>&1
-for film_mode in hold direct press shear single demo; do
+for film_mode in hold direct decoy press shear single demo; do
   film_steps=1400
   film_epochs=1
   film_extra=()
   case "$film_mode" in
     hold) film_steps=200 ;;
     direct) film_steps=380 ;;
+    decoy) film_steps=800 ;;
     press|shear) film_steps=400 ;;
     demo) film_epochs=3; film_extra=(--measure-load) ;;
   esac
@@ -40,7 +41,7 @@ for epoch in range(epochs):
     assert p.exists(), f'Simulator did not finish: {p}'
     s = json.loads(p.read_text())
     assert s['source_unchanged'], 'Source changed during validation; rerun.'
-    if mode in ('hold', 'press', 'shear'):
+    if mode in ('hold', 'press', 'shear', 'decoy'):
         assert s['score'] == 0 and s['final_info']['peeled_strips'] == 0, s
     if mode == 'hold':
         assert not s['final_info']['invalid_trial'], s
