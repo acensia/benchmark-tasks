@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import numpy as np
 import pytest
 from yam_arena.task_file import ObjectState
-from geometry import FILM_NAMES, CARRIER_POS, SIZES, TABLE_Z, TAB_POS, TAB_QUAT, corners, strip_pos
+from geometry import FILM_NAMES, N_BONDED, CARRIER_POS, SIZES, TABLE_Z, TAB_POS, TAB_QUAT, corners, strip_pos
 from scoring import Trial
 from tool_geometry import tool_objects,TOOL_NAMES,TOOL_SIZE,returned
 
@@ -40,7 +40,7 @@ def settle(t, o, steps=20):
         t.finish_step(o, .05)
 
 
-@pytest.mark.parametrize('count,expected', [(0,0), (2,0), (3,.25), (6,.25), (7,.5), (10,.5), (11,.75), (12,.75), (13,.75)])
+@pytest.mark.parametrize('count,expected', [(0,0), (2,0), (3,.25), (5,.25), (6,.5), (8,.5), (9,.75), (11,.75), (12,.75)])
 def test_partial_credit(count, expected):
     t = Trial(); o = initial()
     t.observe(o, hands_clear=True); t.peeled = count
@@ -48,7 +48,7 @@ def test_partial_credit(count, expected):
 
 
 def test_full_score_requires_disposal_and_withdrawal():
-    t = Trial(); o = completed(); t.peeled = 13
+    t = Trial(); o = completed(); t.peeled = N_BONDED
     t.observe(o, hands_clear=False)
     assert t.score(o) == .75
     t.observe(o, hands_clear=True)
@@ -57,7 +57,7 @@ def test_full_score_requires_disposal_and_withdrawal():
 
 
 def test_hovering_is_not_disposal():
-    t = Trial(); o = completed(); t.peeled = 13
+    t = Trial(); o = completed(); t.peeled = N_BONDED
     for name in FILM_NAMES:
         o[name] = state(name, o[name].pos + [0,0,.02])
     t.observe(o, hands_clear=True)
@@ -65,7 +65,7 @@ def test_hovering_is_not_disposal():
 
 
 def test_precreased_tab_may_remain_raised_on_disposed_sheet():
-    t = Trial(); o = completed(); t.peeled = 13
+    t = Trial(); o = completed(); t.peeled = N_BONDED
     o['pull_tab'] = state('pull_tab', [.28, -.28, TABLE_Z+.011], TAB_QUAT)
     t.observe(o, hands_clear=True)
     settle(t, o)
@@ -73,7 +73,7 @@ def test_precreased_tab_may_remain_raised_on_disposed_sheet():
 
 
 def test_centre_outside_but_edge_overlaps():
-    t = Trial(); o = completed(); t.peeled = 13
+    t = Trial(); o = completed(); t.peeled = N_BONDED
     o['film_00'] = state('film_00', [.35, -.10, TABLE_Z+.0005])
     t.observe(o, hands_clear=True)
     assert t.score(o) == .75
@@ -81,19 +81,19 @@ def test_centre_outside_but_edge_overlaps():
 
 @pytest.mark.parametrize('shift', [[.031,0,0], [0,0,.006]])
 def test_plate_excursion_cannot_be_undone(shift):
-    t = Trial(); o = completed(); t.peeled = 13
+    t = Trial(); o = completed(); t.peeled = N_BONDED
     o['carrier'] = state('carrier', CARRIER_POS + shift)
     t.observe(o, hands_clear=True)
     o['carrier'] = state('carrier', CARRIER_POS)
     t.observe(o, hands_clear=True)
     assert t.score(o) == 0.
-    t.reset(); t.peeled = 13; t.observe(o, hands_clear=True)
+    t.reset(); t.peeled = N_BONDED; t.observe(o, hands_clear=True)
     settle(t, o)
     assert t.score(o) == 1.
 
 
 def test_timeout_before_one_second_does_not_receive_full_credit():
-    t = Trial(); o = completed(); t.peeled = 13
+    t = Trial(); o = completed(); t.peeled = N_BONDED
     settle(t, o, 19)
     assert t.score(o) == .75
     # Reading the scorer repeatedly must not advance the hold timer.
@@ -103,7 +103,7 @@ def test_timeout_before_one_second_does_not_receive_full_credit():
 
 
 def test_disrupted_settling_restarts_full_second():
-    t = Trial(); o = completed(); t.peeled = 13
+    t = Trial(); o = completed(); t.peeled = N_BONDED
     settle(t, o, 19)
     t.observe(o, hands_clear=False); t.finish_step(o, .05)
     settle(t, o, 19)
@@ -115,14 +115,14 @@ def test_disrupted_settling_restarts_full_second():
 
 
 def test_invalid_state_fails_closed():
-    t = Trial(); o = completed(); t.peeled = 13
+    t = Trial(); o = completed(); t.peeled = N_BONDED
     o['film_00'].pos[0] = float('nan')
     t.observe(o, hands_clear=True)
     assert t.score(o) == 0.
 
 
 def test_invalid_quaternion_fails_closed():
-    t = Trial(); o = completed(); t.peeled = 13
+    t = Trial(); o = completed(); t.peeled = N_BONDED
     o['film_00'].quat_xyzw[:] = 0
     t.observe(o, hands_clear=True)
     assert t.score(o) == 0.
@@ -152,15 +152,15 @@ def test_released_count_does_not_depend_on_current_position():
 
 
 def test_film_below_table_rejected():
-    t = Trial(); o = completed(); t.peeled = 13
+    t = Trial(); o = completed(); t.peeled = N_BONDED
     o['film_00'] = state('film_00', [.2, -.3, TABLE_Z-.01])
     t.observe(o, hands_clear=True)
     assert t.score(o) == .75
 
 
-@pytest.mark.parametrize('shift', [[.004,0,0],[0,0,.006]])
+@pytest.mark.parametrize('shift', [[.006,0,0],[0,0,.006]])
 def test_tool_return_is_required_for_full_score(shift):
-    t=Trial();o=completed();t.peeled=13
+    t=Trial();o=completed();t.peeled=N_BONDED
     for name in TOOL_NAMES:o[name]=state(name,o[name].pos+shift)
     assert not returned(o)
     settle(t,o)
@@ -168,7 +168,7 @@ def test_tool_return_is_required_for_full_score(shift):
 
 
 def test_tool_must_be_open_released_and_stationary():
-    t=Trial();o=completed();t.peeled=13
+    t=Trial();o=completed();t.peeled=N_BONDED
     assert returned(o)
     o['tweezer_b']=state('tweezer_b',o['tweezer_b'].pos+[0,-.004,0])
     assert not returned(o)
@@ -180,7 +180,7 @@ def test_tool_must_be_open_released_and_stationary():
 
 
 def test_invalid_tool_state_fails_closed():
-    t=Trial();o=completed();t.peeled=13
+    t=Trial();o=completed();t.peeled=N_BONDED
     o['tweezer_a'].pos[0]=np.nan
     t.observe(o,hands_clear=True)
     assert t.score(o)==0

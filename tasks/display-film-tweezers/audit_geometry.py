@@ -191,7 +191,7 @@ def static_checks(out):
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--out',type=Path,required=True);ap.add_argument('--hz',type=float,default=20);ap.add_argument('--static-only',action='store_true')
-    ap.add_argument('--reference-trace',type=Path,default=Path('/tmp/film-v2-load-fullgrip/trace.json'))
+    ap.add_argument('--reference-trace',type=Path,required=True,help='probe.py --mode demo trace (e.g. <out>/0-trace.json)')
     args=ap.parse_args()
     if args.static_only:
         static_checks(args.out);return
@@ -205,9 +205,11 @@ def main():
     checks={k:Check() for k in ('arm_arm','right_hand_carrier','left_hand_carrier','tool_carrier_insert','tool_tab_insert')}
     offset_checks={str(dx):Check() for dx in (-.0012,-.001,-.0008,-.0006)}
     ik=[];max_t=max(p.duration for p in plans.values());tool_geometry=tool_parts_from_snapshot()
-    # Measured stable open-tip grip, before insertion, from the retained M1 trial.
-    trace=json.loads(args.reference_trace.read_text());ref=trace[299]
-    tcp,hr=tcp_pose(np.array(ref['joints'][7:13]),BASES['right'])
+    # Measured hand/tool transform from an integrated demo trace (see --reference-trace).
+    trace=json.loads(args.reference_trace.read_text())
+    # Measured open-tip grip just before insertion: the last 'settle above slot' step.
+    ref_step=max(i for i,r in enumerate(trace) if r['right_phase']=='settle above slot');ref=trace[ref_step]
+    tcp,hr=tcp_pose(np.array(ref['joint_pos'][7:13]),BASES['right'])
     from geometry import rotation
     relative={}
     for name in ('tweezer_a','tweezer_b'):
@@ -236,9 +238,9 @@ def main():
                 check.add(shifted,carrier+tab,t,labels['right'])
         if step%200==0:print(json.dumps(dict(step=step,time=t,overlaps={k:len(v.overlaps) for k,v in checks.items()})),flush=True)
     result=dict(method='20Hz FK + individual URDF convex-part SAT; AABB only broadphase; SLSQP closest-points on selected candidate',
-                limitations=['Commanded joint geometry, not measured physics.', 'Tool insertion uses a fixed measured M1 open-tip hand/tool transform; pinch changes not modeled.', 'Carrier held fixed in its initial pose; film dynamics excluded.', 'Discrete samples do not prove swept continuous clearance.', 'Visual-only yam.urdf has no collisions; yam_arm.urdf supplies 315 convex collision parts.'],
+                limitations=['Commanded joint geometry, not measured physics.', 'Tool insertion uses one measured open-tip hand/tool transform from the reference demo trace; pinch changes and reset-to-reset grip variation are not modeled.', 'Carrier held fixed in its initial pose; film dynamics excluded.', 'Discrete samples do not prove swept continuous clearance.', 'Visual-only yam.urdf has no collisions; yam_arm.urdf supplies 315 convex collision parts.'],
                 source_hashes=hashes,source_unchanged=all(hashlib.sha256(Path(__file__).with_name(n).read_bytes()).hexdigest()==h for n,h in hashes.items()),
-                reference_trace=str(args.reference_trace),reference_trace_sha256=hashlib.sha256(args.reference_trace.read_bytes()).hexdigest(),reference_step=299,
+                reference_trace=str(args.reference_trace),reference_trace_sha256=hashlib.sha256(args.reference_trace.read_bytes()).hexdigest(),reference_step=ref_step,
                 hypothetical_tool_x_offsets={dx:c.result() for dx,c in offset_checks.items()},
                 offset_note='Rigid translation of predicted tool only; not a full revised robot-path proof. Recalibrate after grip physics changes.',
                 collision_asset_hash=hashlib.sha256(b''.join(p.encode()+Path(p).read_bytes() for p in sorted(files))).hexdigest(),

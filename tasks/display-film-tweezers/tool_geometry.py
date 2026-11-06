@@ -5,6 +5,12 @@ from geometry import rotation
 
 STAND_X,STAND_Y=.36,-.24
 TOOL_SIZE=np.array([.008,.0054,.120])
+# Blade box (x width, y thickness, z length); must match the literal 'tip' part in toolkit.py.
+TIP_SIZE=(.0024,.0008,.024)
+# Returned = tip centre inside the stand cavity. Inner half-widths are 6 mm (x) and 13 mm (y);
+# minus the blade half-width (1.2 mm) and the open tips' half-span (4.8 mm) this leaves
+# 4.8 mm and 8.2 mm. 4.5 mm keeps the whole tip inside the walls in both directions.
+RETURN_XY_MM=4.5
 TOOL_NAMES=('tweezer_a','tweezer_b')
 
 
@@ -44,6 +50,22 @@ def return_metrics(objects):
 
 def returned(objects):
     m=return_metrics(objects)
-    return (all(np.isfinite(v) for v in m.values()) and m['xy_mm']<=3 and m['z_mm']<=5
+    return (all(np.isfinite(v) for v in m.values()) and m['xy_mm']<=RETURN_XY_MM and m['z_mm']<=5
             and m['tilt_deg']<=5 and 6<=m['gap_mm']<=10
             and m['speed_mm_s']<10 and m['spin_rad_s']<.5)
+
+
+def box_penetration(ca,ra,sa,cb,rb,sb):
+    """Exact OBB separating-axis overlap; zero for separated boxes (metres)."""
+    axes=[*ra.T,*rb.T]+[np.cross(a,b) for a in ra.T for b in rb.T]
+    overlaps=[]
+    for axis in axes:
+        length=np.linalg.norm(axis)
+        if length<1e-10:continue
+        axis=axis/length
+        extent_a=np.abs(ra.T@axis)@(np.asarray(sa)/2)
+        extent_b=np.abs(rb.T@axis)@(np.asarray(sb)/2)
+        overlap=extent_a+extent_b-abs(axis@(np.asarray(cb)-ca))
+        if overlap<=0:return 0.
+        overlaps.append(float(overlap))
+    return min(overlaps)

@@ -10,10 +10,9 @@ from yam_arena.task_file import ObjectState
 from yam_arena.ik import tcp_pose
 from yam_arena.station import BASES
 from geometry import SIZES,FILM_NAMES,CARRIER_POS,STRIP_SIZE,TAB_SEAM,corners,rotation
-from tool_geometry import TOOL_SIZE,TOOL_NAMES,tool_objects,return_metrics
+from tool_geometry import TOOL_SIZE,TOOL_NAMES,TIP_SIZE,tool_objects,return_metrics,box_penetration
 from scoring import Trial
 from fixture_geometry import tab_parts
-from analyze_tool import box_penetration
 
 
 def states(row):
@@ -58,7 +57,7 @@ def audit(folder,epoch):
             for name in TOOL_NAMES:
                 tool=np.array(row['root_poses'][name]);rr=rotation(tool[3:])
                 for part in tab_parts():
-                    penetration=max(penetration,box_penetration(tool[:3]+rr@[0,0,-.048],rr,[.004,.0008,.024],
+                    penetration=max(penetration,box_penetration(tool[:3]+rr@[0,0,-.048],rr,TIP_SIZE,
                                     tab[:3]+rt@part.center,rt,part.size)*1000)
         measurements.append(dict(step=row['step'],carrier_xy_mm=float(np.linalg.norm((carrier.pos-CARRIER_POS)[:2])*1000),
             carrier_z_mm=float(abs(carrier.pos[2]-CARRIER_POS[2])*1000),

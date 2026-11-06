@@ -9,7 +9,7 @@ def demo():
     # Measured M1 grip: tips are approximately 80 mm below the TCP.
     # Centre the approach over the measured three-reset acquisition variation.
     # The 5.6 mm notch keeps clearance for the finite calibrated pose range.
-    tx,ty=.2795,-.052
+    tx,ty=.2807,-.052
     grasp=FILM_Z-.007+.080
     peel=FILM_Z+.018+.080
     pinch=-.004
@@ -22,9 +22,9 @@ def demo():
            W(4,(tx,ty,grasp),-.0067,'insert tips'),
            W(2,(tx,ty,grasp),pinch,'pinch tab'),
            W(3,(tx,ty,peel),pinch,'lift tab from slot'),
-           W(15,(.28,-.335,peel),pinch,'peel film'),
-           W(2,(.28,-.335,peel+.025),pinch,'lift clear'),
-           W(3,(.17,-.35,peel+.025),pinch,'carry film'),
+           W(15,(.28,-.31,peel+.035),pinch,'peel film'),
+           W(2,(.28,-.31,peel+.06),pinch,'lift clear'),
+           W(3,(.17,-.35,peel+.06),pinch,'carry film'),
            W(3,(.17,-.40,Z+.088),pinch,'lay film on table'),
            W(2,(.17,-.40,Z+.088),-.0067,'release film'),
            W(3,(.17,-.40,Z+.123),-.0067,'lift empty tool'),
@@ -35,8 +35,8 @@ def demo():
            W(3,(.20,-.40,Z+.193),-.020,'clear stand'),
            W(2,(.20,-.40,Z+.13),-.020,'settle')]
     left=[W(5,(.30,.115,Z+.080),0.,'approach carrier'),
-          W(3,(.30,.115,Z+.026),0.,'press carrier'),
-          W(41,(.30,.115,Z+.026),0.,'hold carrier'),
+          W(3,(.30,.115,Z+.014),0.,'press carrier'),
+          W(41,(.30,.115,Z+.014),0.,'hold carrier'),
           W(3,(.30,.115,Z+.13),0.,'withdraw'),
           W(2,(.30,.115,Z+.13),0.,'settle')]
     return dict(left=left,right=right)

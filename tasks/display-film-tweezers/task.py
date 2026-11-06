@@ -20,7 +20,7 @@ SCORE_OVER = 'end'
 OBJECTS = [Box(name='carrier', pos=tuple(map(float, CARRIER_POS)), size=tuple(map(float, CARRIER_SIZE)),
                mass=.250, color=(.12, .15, .18)),
            Box(name='pull_tab', pos=tuple(map(float, TAB_POS)), size=tuple(map(float, TAB_SIZE)),
-               mass=.00014, color=(.03, .2, .85))]
+               mass=.003, color=(.03, .2, .85))]
 OBJECTS += [Box(name=name, pos=tuple(map(float, strip_pos(i))), size=tuple(map(float, STRIP_SIZE)),
                 mass=.0006, color=(.03, .2, .85)) for i, name in enumerate(FILM_NAMES[1:])]
 from tool_geometry import tool_objects
@@ -37,7 +37,8 @@ def success(objects):
 
 
 def distance(objects):
-    return (13 - trial.peeled) * .01
+    from geometry import N_BONDED
+    return (N_BONDED - trial.peeled) * .01
 
 
 

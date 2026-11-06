@@ -1,6 +1,6 @@
 """Outcome scoring, independent of Isaac. History is updated once per control step."""
 import numpy as np
-from geometry import FILM_NAMES, N, CARRIER_POS, CARRIER_SIZE, SIZES, TABLE_Z, corners, rotation
+from geometry import FILM_NAMES, N_BONDED, CARRIER_POS, CARRIER_SIZE, SIZES, TABLE_Z, corners, rotation
 from tool_geometry import TOOL_NAMES,returned
 
 
@@ -60,11 +60,12 @@ class Trial:
     def score(self, objects):
         if self.invalid:
             return 0.0
-        if self.settled_seconds >= 1. - 1e-9 and self.peeled == N and self.disposed(objects):
+        if self.settled_seconds >= 1. - 1e-9 and self.peeled == N_BONDED and self.disposed(objects):
             return 1.0
-        return .75 if self.peeled >= 11 else .5 if self.peeled >= 7 else .25 if self.peeled >= 3 else 0.0
+        # Consecutive peeled adhesive length: 30 / 60 / 90 mm of 120 mm.
+        return .75 if self.peeled >= 9 else .5 if self.peeled >= 6 else .25 if self.peeled >= 3 else 0.0
 
     def finish_step(self, objects, dt):
         """Count stable time exactly once per measured control step, even at timeout."""
-        stable = not self.invalid and self.peeled == N and self.disposed(objects)
+        stable = not self.invalid and self.peeled == N_BONDED and self.disposed(objects)
         self.settled_seconds = self.settled_seconds + dt if stable else 0.

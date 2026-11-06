@@ -7,7 +7,9 @@ film_logs=${3:?Output directory is required}
 case "$film_policy" in yam_scripted|dream) ;; *) echo 'Expected yam_scripted or dream' >&2; exit 2 ;; esac
 film_policy_args=()
 if [[ "$film_policy" == dream ]]; then
-  film_policy_args=(-P model=dreamlabs/dream-1-beta)
+  # Dream's gateway drops a session left idle for about 8 s. A 48-row chunk takes about 6 s on an
+  # L40S but about 14 s at 0.3 s/step on slower GPUs; set FILM_DREAM_ROWS (e.g. 16) there.
+  film_policy_args=(-P model=dreamlabs/dream-1-beta -P "rows_per_request=${FILM_DREAM_ROWS:-48}")
 fi
 film_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 film_cli="$(dirname "$film_python")/inspect-robots"

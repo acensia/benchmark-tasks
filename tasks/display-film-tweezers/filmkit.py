@@ -10,7 +10,7 @@ import importlib.machinery
 import sys
 from functools import wraps
 import numpy as np
-from geometry import (FILM_NAMES, N, CARRIER_POS, SIZES, STRIP_SIZE, TAB_SEAM,
+from geometry import (FILM_NAMES, N, N_BONDED, BONDED_FROM, CARRIER_POS, SIZES, STRIP_SIZE, TAB_SEAM,
                       TAB_QUAT, TAB_SIZE, rotation, strip_pos)
 from scoring import Trial
 
@@ -108,6 +108,8 @@ def _patch_scene(module):
                        target=0.,
                        damping=.0001 if i == 0 else .00002,
                        max_torque=.0002 if i == 0 else None)
+                if i < BONDED_FROM:
+                    return prim  # starter zone: hinged to its neighbours, no adhesive
                 anchor = strip_pos(i) - CARRIER_POS + np.array([0., -STRIP_SIZE[1]/2, 0.])
                 bond = _joint(stage, 'adhesion', _paths['carrier'], str(path),
                               anchor, (0., -STRIP_SIZE[1]/2, 0.), stiffness=STIFFNESS)
@@ -149,13 +151,13 @@ class _SceneFinder(importlib.abc.MetaPathFinder):
 def advance(objects, hands_clear):
     """Advance a single cohesive front; geometry is measured in the plate frame."""
     trial.observe(objects, hands_clear=hands_clear)
-    if trial.peeled >= N:
+    if trial.peeled >= N_BONDED:
         return
     # A scoring failure must not change subsequent material mechanics. Continue
     # physical peeling after plate excursions; only malformed state prevents an update.
     try:
         plate = objects['carrier']
-        s = objects[FILM_NAMES[trial.peeled + 1]]
+        s = objects[FILM_NAMES[trial.peeled + BONDED_FROM + 1]]
         r = rotation(plate.quat_xyzw).T @ rotation(s.quat_xyzw)
     except (KeyError, ValueError):
         return
@@ -224,8 +226,8 @@ def install(task_path):
             if emb.object_jitter != 0:
                 raise ValueError('Connected film requires -E object_jitter=0 for every policy.')
             emb._ensure_sim(None)
-            if len(_bonds) != N:
-                raise RuntimeError(f'Expected {N} adhesive bonds, created {len(_bonds)}')
+            if len(_bonds) != N_BONDED:
+                raise RuntimeError(f'Expected {N_BONDED} adhesive bonds, created {len(_bonds)}')
             trial.reset()
             for bond in _bonds:
                 bond.GetJointEnabledAttr().Set(True)

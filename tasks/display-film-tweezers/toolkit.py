@@ -5,7 +5,6 @@ import sys
 
 PATHS = {}
 JOINT = None
-COUPON_FIXTURE = None
 
 
 def patch(scene):
@@ -14,7 +13,7 @@ def patch(scene):
     def object_spec(spec):
         global JOINT
         obj = original(spec)
-        if spec.name not in ('tweezer_a', 'tweezer_b', 'load_coupon'):
+        if spec.name not in ('tweezer_a', 'tweezer_b'):
             return obj
         from isaaclab.sim.spawners.shapes import spawn_cuboid
         from isaaclab.sim.utils import clone, bind_visual_material, bind_physics_material
@@ -26,20 +25,6 @@ def patch(scene):
         cfg.collision_props.rest_offset = 0.
         cfg.physics_material.static_friction = 1.
         cfg.physics_material.dynamic_friction = .8
-        if spec.name == 'load_coupon':
-            @clone
-            def coupon_spawn(path, config, *args, **kwargs):
-                global COUPON_FIXTURE
-                prim = spawn_cuboid.__wrapped__(path, config, *args, **kwargs)
-                joint = UsdPhysics.FixedJoint.Define(prim.GetStage(),str(path)+'/test_fixture')
-                joint.CreateBody1Rel().SetTargets([str(path)])
-                joint.CreateLocalPos0Attr(Gf.Vec3f(*spec.pos))
-                joint.CreateLocalPos1Attr(Gf.Vec3f(0,0,0))
-                COUPON_FIXTURE = joint
-                return prim
-            cfg.func = coupon_spawn
-            return scene.Object(name=spec.name, object_type=obj.object_type,
-                                spawner_cfg=cfg, initial_pose=obj.initial_pose)
         sign = -1 if spec.name == 'tweezer_a' else 1
 
         @clone
@@ -48,7 +33,7 @@ def patch(scene):
             prim = spawn_cuboid.__wrapped__(path, config, *args, **kwargs)
             stage = prim.GetStage()
             stage.RemovePrim(str(path)+'/geometry/mesh')
-            parts = [('tip', (.004,.0008,.024), (0,0,-.048)),
+            parts = [('tip', (.0024,.0008,.024), (0,0,-.048)),
                      ('neck', (.004,.0048,.004), (0,sign*.002,-.038)),
                      ('handle', (.008,.002,.096), (0,sign*.004,.012))]
             for name, size, pos in parts:

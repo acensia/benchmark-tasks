@@ -5,7 +5,9 @@ import numpy as np
 from fixture_geometry import (TABLE_Z, CARRIER_SIZE, CARRIER_CENTER as CARRIER_POS,
                               FILM_SIZE as STRIP_SIZE, TAB_BOUNDS as TAB_SIZE,
                               TAB_ROOT as TAB_POS, FILM_Z, CREASE_Y, TAB_SEAM)
-N = 13
+N = 13  # film strips after the tab
+BONDED_FROM = 1  # film_00 is a non-adhesive starter zone next to the tab
+N_BONDED = N - BONDED_FROM  # adhesive strips, 10 mm each
 TAB_QUAT = np.array([0.,0.,0.,1.])
 FILM_NAMES = ('pull_tab',) + tuple(f'film_{i:02d}' for i in range(N))
 SIZES = dict(carrier=CARRIER_SIZE, pull_tab=TAB_SIZE,
