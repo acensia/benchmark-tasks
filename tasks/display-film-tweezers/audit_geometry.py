@@ -139,7 +139,7 @@ def tool_parts_from_snapshot():
 
 
 def static_checks(out):
-    """Finite direct-entry poses and alternative withdrawal heights; not M2 proof."""
+    """Finite direct-entry poses and alternative withdrawal heights; not a proof that every strategy is blocked."""
     from yam_arena.urdf import axis_angle_matrix
     from copy import deepcopy
     out.mkdir(parents=True,exist_ok=True)

@@ -1,4 +1,4 @@
-"""Regression guards for the contact and jaw-gap measurement errors found in M1."""
+"""Regression guards for the contact and jaw-gap measurement errors found during development."""
 import numpy as np
 from tool_geometry import box_penetration
 from tool_geometry import return_metrics

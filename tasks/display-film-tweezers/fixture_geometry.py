@@ -1,4 +1,4 @@
-"""Candidate v2 fixture, in metres. Not yet a validated integrated scene.
+"""Carrier, display and starter-tab geometry, in metres.
 
 The carrier is a benchmark-designed nest, not a manufacturer-standard fixture.
 The tab's two side bridges leave a central entry notch behind its grip surface.

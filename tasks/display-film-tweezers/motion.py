@@ -1,4 +1,4 @@
-"""Candidate v2 physical demo; all poses command robot joints through IK."""
+"""Scripted bimanual demo; all poses command robot joints through IK."""
 from fixture_geometry import TABLE_Z as Z, FILM_Z
 
 
@@ -6,7 +6,7 @@ def demo():
     from yam_arena.demo import Waypoint as W
     x,y=.36,-.24
     h=Z+.083
-    # Measured M1 grip: tips are approximately 80 mm below the TCP.
+    # Measured grip: the tips sit about 80 mm below the TCP.
     # Centre the approach over the measured three-reset acquisition variation.
     # The 5.6 mm notch keeps clearance for the finite calibrated pose range.
     tx,ty=.2807,-.052

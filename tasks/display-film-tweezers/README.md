@@ -2,9 +2,9 @@
 
 Dream-1 scored **0.0 in 2,400 steps** (step limit). The recorded scripted demo scored **1.0 in
 1,298 steps**, and the same demo scored 1.0 on three consecutive simulator resets. All runs use
-seed 0, zero object jitter and the same source (hash `c0a42b8a…`, printed by `probe.py`). The nine
+seed 0 and zero object jitter. The nine
 gripper-only baselines release no film, and the demo without the holding arm drags the carrier
-346 mm and scores 0. No v1 score or media applies to this scene.
+346 mm and scores 0.
 
 The loose 250 g carrier holds a display module and 66 × 130 mm protective film.
 A recessed starter tab has an 8 mm grip surface and a 5.6 mm central entry notch.
