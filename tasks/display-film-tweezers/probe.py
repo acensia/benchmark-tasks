@@ -1,7 +1,7 @@
 """Diagnostic simulator runner. Saves measured states and camera frames; never overrides physics.
 
 python probe.py --mode hold --steps 200 --out /tmp/film-hold
-python probe.py --mode demo --steps 740 --out /tmp/film-demo
+python probe.py --mode demo --steps 1400 --out /tmp/film-demo
 """
 import argparse
 import hashlib

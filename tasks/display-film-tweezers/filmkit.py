@@ -1,6 +1,6 @@
 """Task-local YAM integration. Imports Isaac only after the simulator starts.
 
-Prototype cohesive hinge model: each bonded strip resists opening with an angular
+Cohesive hinge model: each bonded strip resists opening with an angular
 spring. Only the current peel front releases, after opening upward by 60 degrees.
 Compression and in-plane shear cannot break the attachment. Release is irreversible
 within a trial; reset restores every attachment. Updated at the 20 Hz control rate.
@@ -149,12 +149,12 @@ class _SceneFinder(importlib.abc.MetaPathFinder):
 
 
 def advance(objects, hands_clear):
-    """Advance a single cohesive front; geometry is measured in the plate frame."""
+    """Advance a single cohesive front; geometry is measured in the carrier frame."""
     trial.observe(objects, hands_clear=hands_clear)
     if trial.peeled >= N_BONDED:
         return
     # A scoring failure must not change subsequent material mechanics. Continue
-    # physical peeling after plate excursions; only malformed state prevents an update.
+    # physical peeling after carrier excursions; only malformed state prevents an update.
     try:
         plate = objects['carrier']
         s = objects[FILM_NAMES[trial.peeled + BONDED_FROM + 1]]
@@ -183,7 +183,7 @@ def validate_integrity(objects):
 
 
 def _hands_clear(emb, objects):
-    """Both TCPs have withdrawn at least 80 mm from the plate and every film piece.
+    """Both TCPs have withdrawn at least 80 mm from every task object.
 
     Uses measured joints, never policy commands. The conservative distance includes
     the pads extending beyond the TCP; requires the film to rest flat separately.

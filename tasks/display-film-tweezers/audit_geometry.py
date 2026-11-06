@@ -1,4 +1,4 @@
-"""CPU-only candidate-path geometry audit; never changes simulator state.
+"""CPU-only demo-path geometry audit; never changes simulator state.
 
 Uses URDF convex collision parts, not a link-wide hull. AABBs only select pairs;
 overlap is confirmed with convex SAT. Reported positive clearance lower bounds

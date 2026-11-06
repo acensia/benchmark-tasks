@@ -1,27 +1,28 @@
-# Peel a display module's protective film with tweezers while steadying its carrier
+# Use tweezers from a stand to peel a display module's protective film by a tab fingers cannot reach
 
 Dream-1 scored **0.0 in 2,400 steps** (step limit). The recorded scripted demo scored **1.0 in
 1,298 steps**, and the same demo scored 1.0 on three consecutive simulator resets. All runs use
-seed 0 and zero object jitter. The nine
-gripper-only baselines release no film, and the demo without the holding arm drags the carrier
-346 mm and scores 0.
+seed 0 and zero object jitter. The nine gripper-only baselines release no film, and the demo
+without the holding arm drags the carrier 346 mm and scores 0.
 
 The loose 250 g carrier holds a display module and 66 × 130 mm protective film.
-A recessed starter tab has an 8 mm grip surface and a 5.6 mm central entry notch.
+A recessed starter tab has an 8 mm grip surface and a 5.6 mm central entry notch. It hangs
+in a 6 mm slot, narrower than the robot's closed fingertips (7.9 mm), so only a tool reaches it.
 The robot acquires a passive 120 mm tweezer tool, grasps the tab, removes the film,
 places it outside the carrier, and returns the tool to its stand. The carrier and
 starter-tab geometry are benchmark-designed fixtures, not an industry standard.
 
 `fixture_geometry.py` defines every carrier and tab component. `tool_geometry.py`
 and `toolkit.py` define the stand and tool. `motion.py` contains the validated
-68-second bimanual trajectory. All quantities use metres, kilograms and seconds.
+bimanual trajectory (68 s planned; the trial ends on success at 65 s). All quantities use metres, kilograms and seconds.
 
 ## Environment and commands
 
 Install [yam-arena](https://github.com/kairosiann/yam-isaac-lab-arena) at
 `bd62771e60320433893bd1d2df0fc79b5ddcd6d1` using its setup instructions and source
 `yam.env`. This provides Isaac Sim 6.1, Isaac Lab 3.0 and Inspect Robots. Simulation
-requires an RTX GPU. CPU geometry diagnostics additionally use SciPy and trimesh.
+requires an RTX GPU. `probe.py --mode direct`, `validate.sh` and `audit_geometry.py` also need
+trimesh and SciPy (tested with trimesh 4.11.1 and SciPy 1.17.0; `pip install trimesh scipy`).
 Use zero object jitter: independent jitter would break the connected film geometry.
 
 Run from the repository root:
@@ -31,7 +32,7 @@ python -m pytest tasks/display-film-tweezers/tests -q
 python tasks/display-film-tweezers/probe.py --mode hold --steps 200 --out /tmp/display-hold
 python tasks/display-film-tweezers/probe.py --mode direct --scenario all --steps 380 --out /tmp/display-direct
 python tasks/display-film-tweezers/probe.py --mode demo --measure-load --steps 1400 --epochs 3 --out /tmp/display-demo
-bash tasks/display-film-tweezers/validate.sh /path/to/python /tmp/display-validation   # all of the above, audited
+bash tasks/display-film-tweezers/validate.sh /path/to/python /tmp/display-validation   # tests, all baselines and the demo, audited
 python tasks/display-film-tweezers/audit_geometry.py --reference-trace /tmp/display-demo/0-trace.json --out /tmp/display-geometry
 bash tasks/display-film-tweezers/record.sh /path/to/python yam_scripted /tmp/display-scripted
 FILM_DREAM_ROWS=16 bash tasks/display-film-tweezers/record.sh /path/to/python dream /tmp/display-dream

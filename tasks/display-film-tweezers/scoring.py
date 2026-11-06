@@ -25,7 +25,7 @@ class Trial:
                 rotation(s.quat_xyzw)
             p = objects['carrier']
             r = rotation(p.quat_xyzw)
-            # Throughout the trial: no lifting, dragging and replacing, or rotating the plate.
+            # Throughout the trial: no lifting, dragging and replacing, or rotating the carrier.
             self.invalid |= bool(np.linalg.norm(np.asarray(p.pos)[:2] - CARRIER_POS[:2]) > .030 + 1e-9)
             self.invalid |= bool(abs(p.pos[2] - CARRIER_POS[2]) > .005 + 1e-9)
             self.invalid |= bool(r[2, 2] < np.cos(np.deg2rad(10)) - 1e-9)

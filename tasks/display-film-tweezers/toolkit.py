@@ -1,4 +1,4 @@
-"""Passive parallel tweezer prototype. No attachment to the robot or pose following."""
+"""Passive parallel tweezers: two rigid halves on a sprung prismatic joint. No attachment to the robot or pose following."""
 import importlib.abc
 import importlib.machinery
 import sys
