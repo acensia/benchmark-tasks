@@ -14,7 +14,7 @@
 | M1 핀셋 단독 | 개발 중 통과, 스크립트는 제출에서 제외 | 3·6 N, 수직·170° 하중 통과 (Codex 기록). 통합 데모의 박리 중 최대 탭 접촉력은 3.3 N |
 | M2 그리퍼 단독 우회 | 통과 | 9개 시나리오 모두 해제 0개, 점수 0, 독립 감사 통과 |
 | M3 통합 | 통과 | 데모 reset 3회 모두 1.0 (1,298스텝), 관통 ≤0.042 mm, 캐리어 이동 ≤0.4 mm, 반납 오차 ≤2.63 mm. hold/press/shear 해제 0, 한 팔 기준선은 캐리어 346 mm 이동으로 무효·0점 |
-| M4 녹화 | 업로드 직전까지 완료 | `record.sh` 기준 스크립트 데모 1.0 (1,298스텝, success), Dream-1 0.0 (2,400스텝, step limit, `FILM_DREAM_ROWS=16`, 세션 만료 0회). 최종 미디어는 `~/ws_cjh/rc-research/v2-media-final/`(demo.mp4 1.33 MB, model_run.mp4 4.46 MB, 960×352 H.264, setup.png 640×360, manifest.json). 업로드·PR은 사용자가 직접 |
+| M4 제출 준비 | 업로드 완료, 보드 확인 결과 중복 위험 있음 | 스크립트 데모 1.0 (1,298스텝), Dream-1 0.0 (2,400스텝, `FILM_DREAM_ROWS=16`, 세션 만료 0회). 미디어 `M-7B69UK` 업로드 완료(2026-11-07, `~/ws_cjh/rc-research/v2-media-final/`, task.json 반영). 로그인 보드 801개 확인: **TK-F8CKFL** (대기, 다른 팀, 2026-11-06 13:40 UTC) "Hold the acrylic sheet down and peel its protective film off by the tab"이 판 누르기 + 탭 박리라는 핵심 동작을 공유. PR 제출 여부는 사용자 판단 |
 
 Codex가 막혔던 지점과 바꾼 것:
 
@@ -34,8 +34,7 @@ Codex가 막혔던 지점과 바꾼 것:
    `tool_probe.py`, `analyze_tool.py`와 `toolkit.py`의 시편 코드를 지웠습니다. `box_penetration`은 `tool_geometry.py`로
    옮겼고, `audit_geometry.py`는 M1 기록 대신 통합 데모 기록(`--reference-trace <demo>/0-trace.json`)에서 손 안 핀셋
    자세를 읽습니다. 소스 해시가 바뀌어 검증·녹화를 다시 돌렸습니다(결과는 아래 "정리 후 재검증").
-8. **미디어 업로드와 PR은 사용자가 직접** 합니다. 공개 PR은 #755까지 중복 없음(#720은 피자 삽이라 무관).
-   로그인이 필요한 보드 확인은 사용자 몫입니다.
+8. **미디어 업로드:** 사용자 요청으로 `~/.dreamlabs/credentials`의 팀 자격 증명을 써서 올렸습니다(`M-7B69UK`). `tools/upload_media.py`는 403을 받았고(Cloudflare가 Python urllib 요청을 막는 것으로 보임) 같은 요청을 curl로 보내 성공했습니다. 공개 PR #755까지와 로그인 보드(801개)를 확인했고, 위 TK-F8CKFL이 가장 가까운 중복 후보입니다. PR은 사용자가 결정합니다.
 
 아래 절들은 Codex 작업 중의 기록이며, 위 표와 다르면 위 표가 맞습니다.
 
