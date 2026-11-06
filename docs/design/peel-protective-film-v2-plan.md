@@ -1,6 +1,6 @@
 # 보호필름 벗기기 v2 계획: 디스플레이 모듈 조립 + 핀셋
 
-작성 2026-11-06 · 브랜치 `task/peel-film-display-tweezers` (v1 커밋 `dbc7991` 위에서 분기) · 상태: M0–M4 완료 (미디어 업로드·PR 전)
+작성 2026-11-06 · 브랜치 `task/peel-film-display-tweezers` (v1 커밋 `dbc7991` 위에서 분기) · 상태: M0–M4 완료, 제출 보류 (TK-F8CKFL 심사 결과 대기)
 
 ## 최종 상태 (Codex 중단 후 이어서 완료, 2026-11-06)
 
@@ -14,7 +14,7 @@
 | M1 핀셋 단독 | 개발 중 통과, 스크립트는 제출에서 제외 | 3·6 N, 수직·170° 하중 통과 (Codex 기록). 통합 데모의 박리 중 최대 탭 접촉력은 3.3 N |
 | M2 그리퍼 단독 우회 | 통과 | 9개 시나리오 모두 해제 0개, 점수 0, 독립 감사 통과 |
 | M3 통합 | 통과 | 데모 reset 3회 모두 1.0 (1,298스텝), 관통 ≤0.042 mm, 캐리어 이동 ≤0.4 mm, 반납 오차 ≤2.63 mm. hold/press/shear 해제 0, 한 팔 기준선은 캐리어 346 mm 이동으로 무효·0점 |
-| M4 제출 준비 | 업로드 완료, 보드 확인 결과 중복 위험 있음 | 스크립트 데모 1.0 (1,298스텝), Dream-1 0.0 (2,400스텝, `FILM_DREAM_ROWS=16`, 세션 만료 0회). 미디어 `M-7B69UK` 업로드 완료(2026-11-07, `~/ws_cjh/rc-research/v2-media-final/`, task.json 반영). 로그인 보드 801개 확인: **TK-F8CKFL** (대기, 다른 팀, 2026-11-06 13:40 UTC) "Hold the acrylic sheet down and peel its protective film off by the tab"이 판 누르기 + 탭 박리라는 핵심 동작을 공유. 사용자 결정(2026-11-07): 차별점을 강조해 제출 준비. title·context·keywords를 핀셋 도구 사용 중심으로 바꿈(instruction은 녹화 조건이라 그대로). 제출용 브랜치 `submit/display-film-tweezers`(`fc46ea7`, 원본 main `466dfbe` + task 폴더 24개 파일만, 최종 문구 점검·시뮬레이터 스모크 통과) 준비 완료, PR 본문 초안 `~/ws_cjh/rc-research/pr-body.md`, push·PR은 사용자 |
+| M4 제출 준비 | 업로드 완료, 보드 확인 결과 중복 위험 있음 | 스크립트 데모 1.0 (1,298스텝), Dream-1 0.0 (2,400스텝, `FILM_DREAM_ROWS=16`, 세션 만료 0회). 미디어 `M-7B69UK` 업로드 완료(2026-11-07, `~/ws_cjh/rc-research/v2-media-final/`, task.json 반영). 로그인 보드 801개 확인: **TK-F8CKFL** (대기, 다른 팀, 2026-11-06 13:40 UTC) "Hold the acrylic sheet down and peel its protective film off by the tab"이 판 누르기 + 탭 박리라는 핵심 동작을 공유. 사용자 결정(2026-11-07): 차별점을 강조해 제출 준비. title·context·keywords를 핀셋 도구 사용 중심으로 바꿈(instruction은 녹화 조건이라 그대로). 제출용 브랜치 `submit/display-film-tweezers`(`fc46ea7`, 원본 main `466dfbe` + task 폴더 24개 파일만, 최종 문구 점검·시뮬레이터 스모크 통과) 준비 완료, PR 본문 초안 `~/ws_cjh/rc-research/pr-body.md`, push·PR은 사용자. **사용자 결정(2026-11-07): 지금은 제출하지 않고 TK-F8CKFL 심사 결과를 본 뒤 제출** — 그 task가 탈락하고 48시간 보유가 풀리면 `submit/display-film-tweezers`를 원본 main에 rebase해 제출 |
 
 Codex가 막혔던 지점과 바꾼 것:
 
