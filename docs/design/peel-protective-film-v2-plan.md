@@ -1,6 +1,6 @@
 # 보호필름 벗기기 v2 계획: 디스플레이 모듈 조립 + 핀셋
 
-작성 2026-11-06 · 브랜치 `task/peel-film-display-tweezers` (v1 커밋 `dbc7991` 위에서 분기) · 상태: v3(도구 선택) 검증 완료, PR 준비 중
+작성 2026-11-06 · 브랜치 `task/peel-film-display-tweezers` (v1 커밋 `dbc7991` 위에서 분기) · 상태: v3(도구 선택) 검증·녹화·업로드 완료, PR 준비 완료(push 전)
 
 ## v3: 도구 선택으로 차별화 (2026-11-07)
 
@@ -19,6 +19,14 @@
 검증(소스 해시 `b7090085…`, `~/ws_cjh/rc-research/v3-final/`): CPU 테스트 41개, 데모 reset 3회 모두 1.0(1,298스텝,
 관통 ≤0.042 mm, 맞는 핀셋 반납 ≤2.63 mm, 평팁 핀셋 제자리 ≤1.55 mm), 평팁 핀셋 우회·그리퍼 단독 9개·hold/press/shear 모두
 해제 0, 한 팔 기준선 무효·0점. `validate.sh` exit 0.
+
+녹화(같은 해시): 스크립트 데모 1.0(1,298스텝), Dream-1 0.0(2,400스텝, `FILM_DREAM_ROWS=16`, 세션 만료 0회). 충돌 감사: 팔–팔 13.4 mm,
+핀셋–탭 0.10 mm, 겹침 0. 미디어 `M-2AU2H2` 업로드(`~/ws_cjh/rc-research/v3-media/`). 보드 재확인(816개): 새로 겹치는 task 없음.
+TK-W2TDHY(가드 안 버튼을 막대로 누르기)는 '도구 선택' 키워드만 같고 과제는 다릅니다. TK-F8CKFL과의 겹침은 '판을 누르며
+필름 벗기기'에 남아 있으나, v3의 핵심은 도구 선택·도구 조작입니다.
+
+제출 준비: `submit/display-film-tweezers`(`e102c3f`, 원본 main `466dfbe` + task 폴더 24개 파일), PR 본문 초안
+`~/ws_cjh/rc-research/pr-body.md`. push·PR은 사용자가 결정합니다.
 
 ## v2 최종 상태 (Codex 중단 후 이어서 완료, 2026-11-06)
 
