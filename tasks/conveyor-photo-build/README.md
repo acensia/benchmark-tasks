@@ -1,4 +1,4 @@
-# Build the model in a photo from parts riding past on a conveyor, picking out look-alikes and parking parts that arrive too early
+# Build the model in a photo from parts riding past on a conveyor, picking out look-alikes and parking early arrivals
 
 Instruction given to the policy (from `task.json`):
 
