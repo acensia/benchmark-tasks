@@ -22,7 +22,7 @@ OBJECTS = [Box(name='carrier', pos=tuple(map(float, CARRIER_POS)), size=tuple(ma
            Box(name='pull_tab', pos=tuple(map(float, TAB_POS)), size=tuple(map(float, TAB_SIZE)),
                mass=.003, color=(.03, .2, .85))]
 OBJECTS += [Box(name=name, pos=tuple(map(float, strip_pos(i))), size=tuple(map(float, STRIP_SIZE)),
-                mass=.0006, color=(.03, .2, .85)) for i, name in enumerate(FILM_NAMES[1:])]
+                mass=.0003, color=(.03, .2, .85)) for i, name in enumerate(FILM_NAMES[1:])]
 from tool_geometry import tool_objects
 OBJECTS += tool_objects()
 install(Path(__file__).resolve())
@@ -37,8 +37,8 @@ def success(objects):
 
 
 def distance(objects):
-    from geometry import N_BONDED
-    return (N_BONDED - trial.peeled) * .01
+    from geometry import N_BONDED, PITCH
+    return (N_BONDED - trial.peeled) * PITCH
 
 
 

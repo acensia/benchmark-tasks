@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import numpy as np
 import pytest
 from yam_arena.task_file import ObjectState
-from geometry import FILM_NAMES, N_BONDED, CARRIER_POS, SIZES, TABLE_Z, TAB_POS, TAB_QUAT, corners, strip_pos
+from geometry import FILM_NAMES, N_BONDED, PITCH, CARRIER_POS, SIZES, TABLE_Z, TAB_POS, TAB_QUAT, corners, strip_pos
 from scoring import Trial
 from tool_geometry import tool_objects,TOOL_NAMES,ALL_TOOL_NAMES,TOOL_SIZE,returned
 
@@ -40,7 +40,7 @@ def settle(t, o, steps=20):
         t.finish_step(o, .05)
 
 
-@pytest.mark.parametrize('count,expected', [(0,0), (2,0), (3,.25), (5,.25), (6,.5), (8,.5), (9,.75), (11,.75), (12,.75)])
+@pytest.mark.parametrize('count,expected', [(0,0), (5,0), (6,.25), (11,.25), (12,.5), (17,.5), (18,.75), (22,.75), (23,.75)])
 def test_partial_credit(count, expected):
     t = Trial(); o = initial()
     t.observe(o, hands_clear=True); t.peeled = count
@@ -139,14 +139,14 @@ def test_plate_rotation_excursion_is_latched(axis):
 
 
 def test_exact_translation_limit_is_allowed():
-    t = Trial(); o = initial(); t.peeled = 7
+    t = Trial(); o = initial(); t.peeled = round(.070 / PITCH)  # 70 mm
     o['carrier'] = state('carrier', CARRIER_POS + [.030,0,0])
     t.observe(o, hands_clear=True)
     assert t.score(o) == .5
 
 
 def test_released_count_does_not_depend_on_current_position():
-    t = Trial(); t.peeled = 7
+    t = Trial(); t.peeled = round(.070 / PITCH)  # 70 mm
     t.observe(initial(), hands_clear=True)
     assert t.score(initial()) == .5
 
@@ -201,3 +201,38 @@ def test_only_fine_tips_pass_the_tab_notch():
     bridges=[p for p in tab_parts() if p.name.startswith('bridge')]
     notch=min(abs(p.center[0])-p.size[0]/2 for p in bridges)*2
     assert TOOLS['fine']['blade'][0] < notch < TOOLS['paddle']['blade'][0]
+
+
+def test_solver_velocity_on_a_still_folded_sheet_does_not_block_credit():
+    t = Trial(); o = completed(); t.peeled = N_BONDED
+    # Measured on the folded 5 mm strips: constant velocity readings with fixed poses.
+    o['film_03'].lin_vel[:] = [0, .0123, 0]; o['film_04'].ang_vel[:] = [2.8, 0, 0]
+    settle(t, o)
+    assert t.score(o) == 1.
+
+
+def test_film_moving_during_the_hold_restarts_the_full_second():
+    t = Trial(); o = completed(); t.peeled = N_BONDED
+    settle(t, o, 10)
+    o['film_05'] = state('film_05', o['film_05'].pos + [0, -.003, 0])
+    settle(t, o, 19)
+    assert t.score(o) == .75
+    settle(t, o, 1)
+    assert t.score(o) == 1.
+
+
+def test_turning_film_piece_restarts_the_full_second():
+    t = Trial(); o = completed(); t.peeled = N_BONDED
+    settle(t, o, 10)
+    a = np.deg2rad(6)
+    o['film_07'] = state('film_07', o['film_07'].pos, (np.sin(a/2), 0, 0, np.cos(a/2)))
+    settle(t, o, 19)
+    assert t.score(o) == .75
+
+
+def test_slowly_creeping_film_never_settles():
+    t = Trial(); o = completed(); t.peeled = N_BONDED
+    for _ in range(60):  # 3 mm/s for 3 s
+        o['film_09'] = state('film_09', o['film_09'].pos + [0, -.00015, 0])
+        settle(t, o, 1)
+        assert t.score(o) == .75

@@ -9,7 +9,7 @@ import numpy as np
 from yam_arena.task_file import ObjectState
 from yam_arena.ik import tcp_pose
 from yam_arena.station import BASES
-from geometry import SIZES,FILM_NAMES,CARRIER_POS,STRIP_SIZE,TAB_SEAM,corners,rotation
+from geometry import SIZES,FILM_NAMES,N,CARRIER_POS,STRIP_SIZE,TAB_SEAM,corners,rotation
 from tool_geometry import TOOL_SIZE,TOOL_NAMES,ALL_TOOL_NAMES,TOOLS,TIP_SIZE,tool_objects,return_metrics,box_penetration
 from scoring import Trial
 from fixture_geometry import tab_parts
@@ -41,7 +41,7 @@ def audit(folder,epoch):
     for row in rows:
         o=states(row);gap=clearance(row,o);trial.observe(o,hands_clear=gap>=.08)
         seam=0.
-        for i in range(13):
+        for i in range(N):
             a,b=o[FILM_NAMES[i]],o[FILM_NAMES[i+1]]
             anchor=TAB_SEAM if i==0 else np.array([0,-STRIP_SIZE[1]/2,0])
             seam=max(seam,float(np.linalg.norm(a.pos+rotation(a.quat_xyzw)@anchor

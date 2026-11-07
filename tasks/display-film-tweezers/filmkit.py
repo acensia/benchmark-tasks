@@ -21,7 +21,11 @@ _installed = False
 _task_path = None
 _assembling = False
 OPEN_ANGLE = np.deg2rad(60)
-STIFFNESS = .03  # N m/rad; provisional, requires force-displacement calibration
+# N m/rad per strip; provisional, requires force-displacement calibration. With 5 mm strips,
+# 0.015 (0.03 at 10 mm, scaled with length) kept the release force but halved the sideways peel
+# load, so an unheld carrier slid only 10 mm and a one-arm peel scored 1.0. At 0.025 the unheld
+# carrier is dragged 295 mm, while the held demo carrier moves 0.1 mm at a 3.0 N peak tab load.
+STIFFNESS = .025
 
 
 def _joint(stage, name, body0, body1, p0, p1, *, stiffness=0., target=0.,

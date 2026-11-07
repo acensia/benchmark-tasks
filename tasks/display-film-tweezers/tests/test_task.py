@@ -8,7 +8,7 @@ from yam_arena import ik
 
 def test_task_loads_and_both_full_trajectories_are_reachable():
     task = load(Path(__file__).resolve().parents[1] / 'task.py')
-    assert len(task.objects) == 29  # carrier, tab, 13 strips, 2 tools x (2 halves + 5 stand parts)
+    assert len(task.objects) == 42  # carrier, tab, 26 strips, 2 tools x (2 halves + 5 stand parts)
     assert task.scene == 'station'
     assert task.score_over == 'end'
     for arm, waypoints in task.demo().items():

@@ -11,7 +11,7 @@ CARRIER_CENTER=np.array([.28,-.035,TABLE_Z+.0085])
 CARRIER_SIZE=np.array([.110,.350,.017])
 GLASS_Z=TABLE_Z+.015
 FILM_Z=GLASS_Z+.0005
-FILM_SIZE=np.array([.066,.010,.001])
+FILM_SIZE=np.array([.066,.005,.001])  # one 5 mm film strip
 CREASE_Y=-.055
 SLOT_X=(-.006,.006)  # relative to carrier centre x
 SLOT_Y=(-.055,-.049)  # world
@@ -51,4 +51,4 @@ def tab_parts():
 
 
 def strip_pos(i):
-    return np.array([.28,CREASE_Y-(i+.5)*.01,FILM_Z])
+    return np.array([.28,CREASE_Y-(i+.5)*FILM_SIZE[1],FILM_Z])
