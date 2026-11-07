@@ -1,6 +1,6 @@
 # 보호필름 벗기기 v2 계획: 디스플레이 모듈 조립 + 핀셋
 
-작성 2026-11-06 · 브랜치 `task/peel-film-display-tweezers` (v1 커밋 `dbc7991` 위에서 분기) · 상태: v3.1(도구 선택 + 5 mm 접착 간격) 검증·녹화·업로드 완료, PR 준비 완료(push 전)
+작성 2026-11-06 · 브랜치 `task/peel-film-display-tweezers` (v1 커밋 `dbc7991` 위에서 분기) · 상태: v3.1(도구 선택 + 5 mm 접착 간격) 제출 완료 — PR #911, **TK-TMT5E3** 심사 대기 (2026-11-07)
 
 ## v3.1: 접착 간격 10 mm → 5 mm (2026-11-07)
 
@@ -30,7 +30,10 @@
 PR 본문 `~/ws_cjh/rc-research/pr-body.md`(v3 본문은 `pr-body-v3.md`). v3 제출 브랜치 `submit/display-film-tweezers`(`e102c3f`)는 대안으로 남겨 둡니다.
 원본 main의 새 커밋(`fd9c390`, `7df8bd8`)은 평행 그리퍼 두 팔이 아닌 로봇의 모델 실행 안내라 이 task(YAM 두 팔, Dream-1)와 무관합니다.
 2026-11-07 재점검: PR·보드 모두 미제출 확인(acensia PR 0개), 보드 910개·열린 PR 중 겹치는 것은 TK-F8CKFL(#769, 심사 전)뿐.
-제출 시점은 이전 결정대로 TK-F8CKFL 심사 결과를 본 뒤입니다. push·PR은 사용자가 결정합니다.
+**제출 (사용자 결정, 2026-11-07 17:56 KST):** TK-F8CKFL 심사를 기다리지 않고 5 mm 버전으로 제출했습니다.
+`submit/display-film-tweezers-5mm`(`32a04e9`)를 fork `acensia/benchmark-tasks`의 `display-film-tweezers` 브랜치로 push하고
+PR #911(https://github.com/robocurve/benchmark-tasks/pull/911)을 열었습니다. 봇이 **TK-TMT5E3**로 접수, 심사 대기.
+심사 전 push는 반영되지 않으므로 그 브랜치에 push하지 않습니다(바꾸려면 PR을 닫고 새로 열어야 합니다). 같은 팀의 컨베이어 task는 TK-3DAUWV(PR #910).
 
 ## v3: 도구 선택으로 차별화 (2026-11-07)
 
