@@ -26,6 +26,11 @@
 녹화(같은 해시): 스크립트 데모 1.0(1,298스텝), Dream-1 0.0(2,400스텝, `FILM_DREAM_ROWS=16`, 세션 만료 0회).
 미디어 `M-MXEH3F` 업로드(`~/ws_cjh/rc-research/pitch5-media/`). 보드 재확인(874개): 새로 겹치는 task 없음, TK-F8CKFL은 여전히 대기.
 
+제출 준비: `submit/display-film-tweezers-5mm`(`f70fc27`, 원본 main `fd9c390` + task 폴더 24개 파일, 내보낸 사본에서 테스트 45개 통과·소스 해시 일치),
+PR 본문 `~/ws_cjh/rc-research/pr-body.md`(v3 본문은 `pr-body-v3.md`). v3 제출 브랜치 `submit/display-film-tweezers`(`e102c3f`)는 대안으로 남겨 둡니다.
+원본 main의 새 커밋(`fd9c390`)은 Dream-1이 제어하지 못하는 로봇용 `no_dream_run` 안내라 이 task와 무관합니다.
+제출 시점은 이전 결정대로 TK-F8CKFL 심사 결과를 본 뒤입니다. push·PR은 사용자가 결정합니다.
+
 ## v3: 도구 선택으로 차별화 (2026-11-07)
 
 이 절이 아래의 모든 절보다 우선합니다. 목표는 다른 팀의 TK-F8CKFL("판을 누른 채 보호필름을 탭으로 벗기기")과
