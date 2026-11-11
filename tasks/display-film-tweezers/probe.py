@@ -22,7 +22,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', choices=['hold', 'demo', 'single', 'press', 'shear','direct','decoy'], default='hold')
     parser.add_argument('--scenario',default='all',help='Direct baseline name, or all')
-    parser.add_argument('--measure-load',action='store_true',help='Record tab/tool contact load at each physics substep')
+    parser.add_argument('--measure-load',action='store_true',help='Record film-end/tool contact load at each physics substep')
     parser.add_argument('--steps', type=int, default=200)
     parser.add_argument('--epochs', type=int, default=1)
     parser.add_argument('--out', type=Path, required=True)
@@ -95,7 +95,7 @@ def main():
         if args.measure_load:
             from force_probe import ContactLoad
             from toolkit import PATHS
-            sensor=ContactLoad(emb,_paths['pull_tab'],[PATHS[n] for n in ('tweezer_a','tweezer_b')])
+            sensor=ContactLoad(emb,_paths['film_end'],[PATHS[n] for n in ('tweezer_a','tweezer_b')])
         for step in range(args.steps):
             action = hold if args.mode == 'hold' else np.concatenate(
                 [plans[arm].action7((step+1)/20)[0] for arm in ('left', 'right')])
@@ -136,7 +136,7 @@ def main():
                        source_sha256=loaded_hash, source_unchanged=loaded_hash == source_hash())
         if sensor is not None:
             peel_samples=[np.linalg.norm(s['resultant_N']) for r in records
-                          if r['right_phase'] in ('lift tab from slot','peel film')
+                          if r['right_phase'] in ('lift film end','peel film')
                           for s in r['contact_load_substeps']]
             summary['peel_peak_contact_N']=max(map(float,peel_samples),default=0.)
             summary['peel_load_samples']=len(peel_samples)

@@ -1,5 +1,5 @@
-"""Remove the protective film from the display module in its loose assembly carrier.
-Use the passive tweezers to grasp the recessed starter tab. Lay the detached film
+"""Remove the protective film from a smartphone screen; the phone is clamped in a loose carrier.
+Use the passive tweezers to grasp the film's folded end in the relief channel. Lay the detached film
 entirely outside the carrier, return the tweezers upright to their stand, and
 withdraw both hands. Throughout the trial the carrier must stay within 30 mm
 horizontally, 5 mm vertically, and 10 degrees of its starting orientation.
@@ -10,7 +10,7 @@ import sys
 # yam_arena loads task files by path, without adding their directory to sys.path.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from yam_arena.task_file import Box
-from geometry import FILM_NAMES, CARRIER_POS, CARRIER_SIZE, STRIP_SIZE, TAB_POS, TAB_SIZE, strip_pos
+from geometry import FILM_NAMES, CARRIER_POS, CARRIER_SIZE, STRIP_SIZE, END_POS, END_SIZE, strip_pos
 from filmkit import install, trial
 
 SCENE = 'station'
@@ -19,7 +19,7 @@ SUCCESS_HOLD_S = 0.0
 SCORE_OVER = 'end'
 OBJECTS = [Box(name='carrier', pos=tuple(map(float, CARRIER_POS)), size=tuple(map(float, CARRIER_SIZE)),
                mass=.250, color=(.12, .15, .18)),
-           Box(name='pull_tab', pos=tuple(map(float, TAB_POS)), size=tuple(map(float, TAB_SIZE)),
+           Box(name='film_end', pos=tuple(map(float, END_POS)), size=tuple(map(float, END_SIZE)),
                mass=.003, color=(.03, .2, .85))]
 OBJECTS += [Box(name=name, pos=tuple(map(float, strip_pos(i))), size=tuple(map(float, STRIP_SIZE)),
                 mass=.0003, color=(.03, .2, .85)) for i, name in enumerate(FILM_NAMES[1:])]

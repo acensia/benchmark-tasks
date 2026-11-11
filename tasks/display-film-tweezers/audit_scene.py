@@ -9,10 +9,10 @@ import numpy as np
 from yam_arena.task_file import ObjectState
 from yam_arena.ik import tcp_pose
 from yam_arena.station import BASES
-from geometry import SIZES,FILM_NAMES,N,CARRIER_POS,STRIP_SIZE,TAB_SEAM,corners,rotation
+from geometry import SIZES,FILM_NAMES,N,CARRIER_POS,STRIP_SIZE,END_SEAM,corners,rotation
 from tool_geometry import TOOL_SIZE,TOOL_NAMES,ALL_TOOL_NAMES,TOOLS,TIP_SIZE,tool_objects,return_metrics,box_penetration
 from scoring import Trial
-from fixture_geometry import tab_parts
+from fixture_geometry import film_end_parts
 
 
 def states(row):
@@ -43,7 +43,7 @@ def audit(folder,epoch):
         seam=0.
         for i in range(N):
             a,b=o[FILM_NAMES[i]],o[FILM_NAMES[i+1]]
-            anchor=TAB_SEAM if i==0 else np.array([0,-STRIP_SIZE[1]/2,0])
+            anchor=END_SEAM if i==0 else np.array([0,-STRIP_SIZE[1]/2,0])
             seam=max(seam,float(np.linalg.norm(a.pos+rotation(a.quat_xyzw)@anchor
                            -b.pos-rotation(b.quat_xyzw)@[0,STRIP_SIZE[1]/2,0])))
         trial.invalid=trial.invalid or seam>.003
@@ -52,11 +52,11 @@ def audit(folder,epoch):
         if score!=row['info']['score']:mismatches.append(dict(step=row['step'],recomputed=score,recorded=row['info']['score']))
         carrier=o['carrier'];r=rotation(carrier.quat_xyzw)
         penetration=0.
-        if row['right_phase'] in ('pinch tab','lift tab from slot','peel film'):
-            tab=np.array(row['root_poses']['pull_tab']);rt=rotation(tab[3:])
+        if row['right_phase'] in ('pinch film end','lift film end','peel film'):
+            tab=np.array(row['root_poses']['film_end']);rt=rotation(tab[3:])
             for name in TOOL_NAMES:
                 tool=np.array(row['root_poses'][name]);rr=rotation(tool[3:])
-                for part in tab_parts():
+                for part in film_end_parts():
                     penetration=max(penetration,box_penetration(tool[:3]+rr@[0,0,-.048],rr,TIP_SIZE,
                                     tab[:3]+rt@part.center,rt,part.size)*1000)
         measurements.append(dict(step=row['step'],carrier_xy_mm=float(np.linalg.norm((carrier.pos-CARRIER_POS)[:2])*1000),

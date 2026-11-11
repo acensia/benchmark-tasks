@@ -144,7 +144,7 @@ def static_checks(out):
     from yam_arena.urdf import axis_angle_matrix
     from copy import deepcopy
     out.mkdir(parents=True,exist_ok=True)
-    parts,_=load_parts();carrier=[box(p.name,p.size,fg.CARRIER_CENTER+np.array(p.center)) for p in fg.carrier_parts()]
+    parts,_=load_parts();carrier=[box(p.name,p.size,fg.CARRIER_CENTER+np.array(p.center)) for p in fg.carrier_parts() if p.collide]
     cases=[]
     for finger in (0.,-.0067,-.020):
         angles=dict(zip(ARM_JOINTS,READY));angles.update(joint7=finger,joint8=finger)
@@ -200,16 +200,16 @@ def main():
     names=('motion.py','fixture_geometry.py','toolkit.py','audit_geometry.py')
     hashes={n:hashlib.sha256(Path(__file__).with_name(n).read_bytes()).hexdigest() for n in names}
     for n in names:shutil.copyfile(Path(__file__).with_name(n),src/n)
-    parts,files=load_parts();carrier=[box(p.name,p.size,fg.CARRIER_CENTER+np.array(p.center)) for p in fg.carrier_parts()]
-    tab=[box('tab/'+p.name,p.size,fg.TAB_ROOT+np.array(p.center)) for p in fg.tab_parts()]
+    parts,files=load_parts();carrier=[box(p.name,p.size,fg.CARRIER_CENTER+np.array(p.center)) for p in fg.carrier_parts() if p.collide]
+    tab=[box('film_end/'+p.name,p.size,fg.END_ROOT+np.array(p.center)) for p in fg.film_end_parts()]
     plans={s:ArmPlan(ws,BASES[s]) for s,ws in motion.demo().items()}
     checks={k:Check() for k in ('arm_arm','right_hand_carrier','left_hand_carrier','tool_carrier_insert','tool_tab_insert')}
     offset_checks={str(dx):Check() for dx in (-.0012,-.001,-.0008,-.0006)}
     ik=[];max_t=max(p.duration for p in plans.values());tool_geometry=tool_parts_from_snapshot()
     # Measured hand/tool transform from an integrated demo trace (see --reference-trace).
     trace=json.loads(args.reference_trace.read_text())
-    # Measured open-tip grip just before insertion: the last 'settle above slot' step.
-    ref_step=max(i for i,r in enumerate(trace) if r['right_phase']=='settle above slot');ref=trace[ref_step]
+    # Measured open-tip grip just before insertion: the last 'settle above channel' step.
+    ref_step=max(i for i,r in enumerate(trace) if r['right_phase']=='settle above channel');ref=trace[ref_step]
     tcp,hr=tcp_pose(np.array(ref['joint_pos'][7:13]),BASES['right'])
     from geometry import rotation
     relative={}
@@ -225,7 +225,7 @@ def main():
         for side in ('left','right'):
             hand=[p for p in placed[side] if p.name.split('/')[0] in ('gripper','tip_left','tip_right')]
             checks[side+'_hand_carrier'].add(hand,carrier,t,labels[side])
-        if labels['right'] in ('insert tips','pinch tab','settle above slot'):
+        if labels['right'] in ('insert tips','pinch film end','settle above channel'):
             tcp,hr=tcp_pose(qs['right'],BASES['right']);tool=[]
             for name,sign in [('tweezer_a',-1),('tweezer_b',1)]:
                 rr,rp=relative[name];r=hr@rr;p=tcp+hr@rp

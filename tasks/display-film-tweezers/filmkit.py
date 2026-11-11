@@ -10,8 +10,8 @@ import importlib.machinery
 import sys
 from functools import wraps
 import numpy as np
-from geometry import (FILM_NAMES, N, N_BONDED, BONDED_FROM, CARRIER_POS, SIZES, STRIP_SIZE, TAB_SEAM,
-                      TAB_QUAT, TAB_SIZE, rotation, strip_pos)
+from geometry import (FILM_NAMES, N, N_BONDED, BONDED_FROM, CARRIER_POS, SIZES, STRIP_SIZE, END_SEAM,
+                      END_QUAT, END_SIZE, rotation, strip_pos)
 from scoring import Trial
 
 trial = Trial()
@@ -24,7 +24,8 @@ OPEN_ANGLE = np.deg2rad(60)
 # N m/rad per strip; provisional, requires force-displacement calibration. With 5 mm strips,
 # 0.015 (0.03 at 10 mm, scaled with length) kept the release force but halved the sideways peel
 # load, so an unheld carrier slid only 10 mm and a one-arm peel scored 1.0. At 0.025 the unheld
-# carrier is dragged 295 mm, while the held demo carrier moves 0.1 mm at a 3.0 N peak tab load.
+# carrier is dragged 295 mm, while the held demo carrier moves 0.1 mm at a 3.0 N peak tab load
+# (measured with the earlier display-carrier geometry).
 STIFFNESS = .025
 
 
@@ -89,8 +90,8 @@ def _patch_scene(module):
             cfg.physics_material.dynamic_friction = .4
             cfg.physics_material.friction_combine_mode = 'min'
         pose = obj.initial_pose
-        if spec.name == 'pull_tab':
-            pose = Pose(position_xyz=tuple(spec.pos), rotation_xyzw=tuple(map(float, TAB_QUAT)))
+        if spec.name == 'film_end':
+            pose = Pose(position_xyz=tuple(spec.pos), rotation_xyzw=tuple(map(float, END_QUAT)))
             cfg.activate_contact_sensors = True
 
         @clone
@@ -98,14 +99,14 @@ def _patch_scene(module):
             prim = spawn_cuboid.__wrapped__(path, config, *args, **kwargs)
             stage = prim.GetStage()
             _paths[spec.name] = str(path)
-            if spec.name in ('carrier','pull_tab'):
-                from fixture_geometry import carrier_parts,tab_parts
+            if spec.name in ('carrier','film_end'):
+                from fixture_geometry import carrier_parts,film_end_parts
                 from fixturekit import replace_mesh
-                replace_mesh(prim,config,carrier_parts() if spec.name=='carrier' else tab_parts())
-            if spec.name.startswith('film_'):
+                replace_mesh(prim,config,carrier_parts() if spec.name=='carrier' else film_end_parts())
+            if spec.name in FILM_NAMES[1:]:  # film_00.. strips (film_end is the folded end)
                 i = int(spec.name.split('_')[1])
-                prev = 'pull_tab' if i == 0 else f'film_{i-1:02d}'
-                prev_anchor = TAB_SEAM if i == 0 else (0.,-STRIP_SIZE[1]/2,0.)
+                prev = 'film_end' if i == 0 else f'film_{i-1:02d}'
+                prev_anchor = END_SEAM if i == 0 else (0.,-STRIP_SIZE[1]/2,0.)
                 _joint(stage, 'hinge', _paths[prev], str(path),
                        prev_anchor, (0., STRIP_SIZE[1]/2, 0.),
                        stiffness=.01 if i == 0 else 0.,
@@ -179,7 +180,7 @@ def validate_integrity(objects):
     """
     for i in range(N):
         prev, cur = objects[FILM_NAMES[i]], objects[FILM_NAMES[i+1]]
-        anchor = TAB_SEAM if i == 0 else np.array([0.,-STRIP_SIZE[1]/2,0.])
+        anchor = END_SEAM if i == 0 else np.array([0.,-STRIP_SIZE[1]/2,0.])
         a = prev.pos + rotation(prev.quat_xyzw) @ anchor
         b = cur.pos + rotation(cur.quat_xyzw) @ np.array([0., STRIP_SIZE[1]/2, 0.])
         if np.linalg.norm(a-b) > .003:

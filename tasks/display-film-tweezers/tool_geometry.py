@@ -1,7 +1,7 @@
 """Passive tools and stands shared by the integrated scene and scorer.
 
 Two otherwise identical tweezers stand side by side. Only the fine-tip pair fits the 5.6 mm
-notch between the tab's side bridges; the paddle-tip pair's 7 mm blades land on the bridges.
+relief cut at the centre of the film's fold; the paddle-tip pair's 7 mm blades land on the fold.
 """
 import numpy as np
 from fixture_geometry import TABLE_Z
@@ -18,7 +18,7 @@ RETURN_XY_MM=4.5
 # key: stand centre (x, y), half names, stand part prefix, blade (x, y, z); blades must match toolkit.BLADES.
 TOOLS={'fine':dict(stand=(STAND_X,STAND_Y),names=('tweezer_a','tweezer_b'),prefix='stand',blade=TIP_SIZE),
        'paddle':dict(stand=(.36,-.17),names=('paddle_a','paddle_b'),prefix='paddle_stand',blade=(.007,.0008,.024))}
-TOOL_NAMES=TOOLS['fine']['names']  # the pair that fits the slot
+TOOL_NAMES=TOOLS['fine']['names']  # the pair that fits the relief cut
 ALL_TOOL_NAMES=tuple(n for t in TOOLS.values() for n in t['names'])
 STAND_FLOORS=tuple(t['prefix']+'_floor' for t in TOOLS.values())
 

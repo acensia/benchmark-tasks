@@ -54,7 +54,7 @@ class Trial:
             outside = any(local[:, axis].min() >= CARRIER_SIZE[axis]/2 + .002 or
                           local[:, axis].max() <= -CARRIER_SIZE[axis]/2 - .002
                           for axis in (0, 1))
-            # Permit the precreased tab to remain raised after disposal. The sheet
+            # Permit the folded film end to remain raised after disposal. The sheet
             # must have table support, remain entirely within 30 mm of the surface,
             # be clear of both hands and stay still for the hold (finish_step); an
             # airborne sheet cannot pass.
@@ -70,7 +70,7 @@ class Trial:
             return 0.0
         if self.settled_seconds >= 1. - 1e-9 and self.peeled == N_BONDED and self.disposed(objects):
             return 1.0
-        # Consecutive peeled adhesive length: 30 / 60 / 90 mm of 115 mm.
+        # Consecutive peeled adhesive length: 30 / 60 / 90 mm of 125 mm.
         mm = round(self.peeled * PITCH * 1000, 6)
         return .75 if mm >= 90 else .5 if mm >= 60 else .25 if mm >= 30 else 0.0
 

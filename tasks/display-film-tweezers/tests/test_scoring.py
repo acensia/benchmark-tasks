@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import numpy as np
 import pytest
 from yam_arena.task_file import ObjectState
-from geometry import FILM_NAMES, N_BONDED, PITCH, CARRIER_POS, SIZES, TABLE_Z, TAB_POS, TAB_QUAT, corners, strip_pos
+from geometry import FILM_NAMES, N_BONDED, PITCH, CARRIER_POS, SIZES, TABLE_Z, END_POS, END_QUAT, corners, strip_pos
 from scoring import Trial
 from tool_geometry import tool_objects,TOOL_NAMES,ALL_TOOL_NAMES,TOOL_SIZE,returned
 
@@ -23,7 +23,7 @@ def initial():
                                     [0,.0023,0] if n in ALL_TOOL_NAMES and n.endswith('_b') else [0,0,0]))
            for n,o in TOOL_SPECS.items()}
     return dict(carrier=state('carrier', CARRIER_POS),**tools,
-                pull_tab=state('pull_tab', TAB_POS, TAB_QUAT),
+                film_end=state('film_end', END_POS, END_QUAT),
                 **{n: state(n, strip_pos(i)) for i, n in enumerate(FILM_NAMES[1:])})
 
 
@@ -40,7 +40,7 @@ def settle(t, o, steps=20):
         t.finish_step(o, .05)
 
 
-@pytest.mark.parametrize('count,expected', [(0,0), (5,0), (6,.25), (11,.25), (12,.5), (17,.5), (18,.75), (22,.75), (23,.75)])
+@pytest.mark.parametrize('count,expected', [(0,0), (5,0), (6,.25), (11,.25), (12,.5), (17,.5), (18,.75), (24,.75), (25,.75)])
 def test_partial_credit(count, expected):
     t = Trial(); o = initial()
     t.observe(o, hands_clear=True); t.peeled = count
@@ -64,9 +64,9 @@ def test_hovering_is_not_disposal():
     assert t.score(o) == .75
 
 
-def test_precreased_tab_may_remain_raised_on_disposed_sheet():
+def test_folded_end_may_remain_raised_on_disposed_sheet():
     t = Trial(); o = completed(); t.peeled = N_BONDED
-    o['pull_tab'] = state('pull_tab', [.28, -.28, TABLE_Z+.011], TAB_QUAT)
+    o['film_end'] = state('film_end', [.28, -.28, TABLE_Z+.011], END_QUAT)
     t.observe(o, hands_clear=True)
     settle(t, o)
     assert t.score(o) == 1.
@@ -195,11 +195,11 @@ def test_decoy_tool_must_also_be_back_in_its_stand():
     assert t.score(o)==.75
 
 
-def test_only_fine_tips_pass_the_tab_notch():
-    from fixture_geometry import tab_parts
+def test_only_fine_tips_pass_the_relief_cut():
+    from fixture_geometry import film_end_parts
     from tool_geometry import TOOLS
-    bridges=[p for p in tab_parts() if p.name.startswith('bridge')]
-    notch=min(abs(p.center[0])-p.size[0]/2 for p in bridges)*2
+    folds=[p for p in film_end_parts() if p.name.startswith('fold')]
+    notch=min(abs(p.center[0])-p.size[0]/2 for p in folds)*2
     assert TOOLS['fine']['blade'][0] < notch < TOOLS['paddle']['blade'][0]
 
 

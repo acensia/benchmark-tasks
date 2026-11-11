@@ -1,8 +1,8 @@
 """Diagnostic contact-load sampling at every physics step, without applying forces.
 
-Sum the normal and tangential contact forces on the tab from both tool halves.
+Sum the normal and tangential contact forces on the folded film end from both tool halves.
 Opposing clamp forces cancel in this resultant; it is the transmitted film load,
-not a constant peel-force assumption. The tab must have contact reporting enabled.
+not a constant peel-force assumption. The film end must have contact reporting enabled.
 """
 import numpy as np
 
@@ -38,7 +38,7 @@ class ContactLoad:
             self.samples.append(dict(normal_N=normal.tolist(),friction_N=tangent.tolist(),
                                      resultant_N=(normal+tangent).tolist(),
                                      jaw_normal_N=per_jaw.tolist(),jaw_friction_N=per_jaw_friction.tolist(),
-                                     body_order=['pull_tab','tweezer_a','tweezer_b'],
+                                     body_order=['film_end','tweezer_a','tweezer_b'],
                                      body_poses=array(self.bodies.get_transforms()).tolist(),
                                      body_velocities=array(self.bodies.get_velocities()).tolist(),
                                      finger_q_m=array(self.robot.get_dof_positions())[0,self.fingers].tolist(),

@@ -60,7 +60,7 @@ def make_plan(name,base):
     finger=-.0067
     target=(.28,-.052,FILM_Z-.007)
     if name=='side_edge':target=(.247,-.12,FILM_Z-.001)
-    if name=='far_edge':target=(.28,-.185,FILM_Z-.002)
+    if name=='far_edge':target=(.28,-.195,FILM_Z-.002)
     if name=='lift_carrier':target=(.28,.137,TABLE_Z+.006);finger=-.020
     if name=='push_carrier':target=(.35,.070,TABLE_Z+.005);finger=0.
     tcp=anchored_tcp(target,anchor,finger,yaw,tilt)
