@@ -65,7 +65,9 @@ cannot release a bond. The 0.025 N m/rad adhesive springs are an approximation,
 not a fit to measured PE peel forces. Film thickness is inflated to 1 mm and the
 folded end's mass to 3 g for contact stability: at a real sub-gram mass the 7.5 g
 tweezer halves pushed through it. The phone is clamped in the carrier pocket (one rigid body);
-its rounded corners are visual, with box collision. Wrinkles, stretch, tearing, scratches and ESD
+its rounded corners, display border, punch-hole camera, bottom-end USB-C port, speaker and mic
+holes and the carrier's screws are visual only, with box collision. The film is drawn as a
+translucent light blue (opacity 0.45). Wrinkles, stretch, tearing, scratches and ESD
 are not modeled.
 
 Each tweezer tool comprises two 7.5 g rigid halves connected by a 150 N/m opening spring;

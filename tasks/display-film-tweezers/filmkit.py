@@ -89,6 +89,9 @@ def _patch_scene(module):
             cfg.physics_material.static_friction = .4
             cfg.physics_material.dynamic_friction = .4
             cfg.physics_material.friction_combine_mode = 'min'
+        if spec.name in FILM_NAMES:
+            from fixture_geometry import FILM_OPACITY
+            cfg.visual_material.opacity = FILM_OPACITY  # translucent film shows the screen below
         pose = obj.initial_pose
         if spec.name == 'film_end':
             pose = Pose(position_xyz=tuple(spec.pos), rotation_xyzw=tuple(map(float, END_QUAT)))

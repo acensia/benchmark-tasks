@@ -9,9 +9,11 @@ def replace_mesh(prim, config, parts, contact_offset=.0002):
     stage.RemovePrim(path+'/geometry/mesh')
     for part in parts:
         if part.shape=='cylinder':
-            # Visual rounding only (vertical axis); collision stays with the boxes.
+            # Visual-only rounding and details; collision stays with the boxes.
+            axis='XYZ'.index(part.axis)
             shape=UsdGeom.Cylinder.Define(stage,path+'/geometry/'+part.name)
-            shape.CreateAxisAttr('Z');shape.CreateRadiusAttr(part.size[0]/2);shape.CreateHeightAttr(part.size[2])
+            shape.CreateAxisAttr(part.axis);shape.CreateHeightAttr(part.size[axis])
+            shape.CreateRadiusAttr(max(e for i,e in enumerate(part.size) if i!=axis)/2)
             shape.AddTranslateOp().Set(Gf.Vec3d(*part.center))
         else:
             shape=UsdGeom.Cube.Define(stage,path+'/geometry/'+part.name)
@@ -26,5 +28,5 @@ def replace_mesh(prim, config, parts, contact_offset=.0002):
             bind_physics_material(str(shape.GetPath()),path+'/geometry/'+config.physics_material_path)
         # A material per part keeps the tray, phone frame, glass and film visibly distinct.
         material_path=str(shape.GetPath())+'/material'
-        spawn_preview_surface(material_path,PreviewSurfaceCfg(diffuse_color=part.color))
+        spawn_preview_surface(material_path,PreviewSurfaceCfg(diffuse_color=part.color,opacity=part.opacity))
         bind_visual_material(str(shape.GetPath()),material_path)
